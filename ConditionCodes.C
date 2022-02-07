@@ -13,7 +13,8 @@ ConditionCodes * ConditionCodes::ccInstance = NULL;
  */
 ConditionCodes::ConditionCodes()
 {
-
+    ccInstance = (ConditionCodes *) malloc(sizeof(ConditionCodes));
+    ccInstance -> codes = 0;
 }
 
 /**
@@ -26,7 +27,10 @@ ConditionCodes::ConditionCodes()
  */
 ConditionCodes * ConditionCodes::getInstance()
 {
-   return NULL;
+    if (!ccInstance) {
+	ccInstance = (ConditionCodes *) malloc(sizeof(ConditionCodes));
+    }
+    return ccInstance;
 }
 
 /*
@@ -42,9 +46,14 @@ ConditionCodes * ConditionCodes::getInstance()
  */
 bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
 {
-   //Use your getBits in Tools.C.
-   //Don't use "magic" numbers.
-   return false;
+    //Use your getBits in Tools.C.
+    //Don't use "magic" numbers.
+    if (ccNum == OF || ccNum == SF || ccNum == ZF) {
+	error = true;
+	return Tools::getBits(ccInstance -> codes, ccNum, ccNum);
+    }
+    error = false;
+    return error;
 }
 
 /*
@@ -60,11 +69,11 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
  *         false otherwise
  */
 void ConditionCodes::setConditionCode(bool value, int32_t ccNum, 
-                                      bool & error)
+	bool & error)
 {
-   //Use your setBits and clearBits in Tools.C. 
-   //Don't use "magic" numbers in your code.
-   return;
+    //Use your setBits and clearBits in Tools.C. 
+    //Don't use "magic" numbers in your code.
+    return;
 }
 
 /*
@@ -73,11 +82,11 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
  */
 void ConditionCodes::dump()
 {
-   int32_t zf = Tools::getBits(codes, ZF, ZF);
-   int32_t sf = Tools::getBits(codes, SF, SF);
-   int32_t of = Tools::getBits(codes, OF, OF);
-   std::cout << std::endl;
-   std::cout << "ZF: " << std::hex << std::setw(1) << zf << " ";
-   std::cout << "SF: " << std::hex << std::setw(1) << sf << " ";
-   std::cout << "OF: " << std::hex << std::setw(1) << of << std::endl;
+    int32_t zf = Tools::getBits(codes, ZF, ZF);
+    int32_t sf = Tools::getBits(codes, SF, SF);
+    int32_t of = Tools::getBits(codes, OF, OF);
+    std::cout << std::endl;
+    std::cout << "ZF: " << std::hex << std::setw(1) << zf << " ";
+    std::cout << "SF: " << std::hex << std::setw(1) << sf << " ";
+    std::cout << "OF: " << std::hex << std::setw(1) << of << std::endl;
 }
