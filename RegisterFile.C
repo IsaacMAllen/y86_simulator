@@ -71,6 +71,12 @@ uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 void RegisterFile::writeRegister(uint64_t value, int32_t regNumber, 
 	bool & error)
 {
+    if (regNumber < 0xf && regNumber >=0) {
+	regInstance -> reg[regNumber] = value;
+	error = false;
+	return;
+    }
+    error = true;
     return;
 }
 
