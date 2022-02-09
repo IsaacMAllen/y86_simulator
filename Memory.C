@@ -47,26 +47,11 @@ Memory * Memory::getInstance()
  */
 uint64_t Memory::getLong(int32_t address, bool & imem_error)
 {
-    imem_error = ((address % 8) != 0) && !(address >= 0 && address < MEMSIZE);
+    imem_error = ((address % 8) != 0) || !(address >= 0 && address + 7 < MEMSIZE);
     if (!imem_error) {
-	uint8_t mem[8];
-	int count = 0;
-	for (int i = 0; i < MEMSIZE; ++i) {
-	    if (memInstance -> mem[i] != 0x88) {
-		printf("\n\n%lx\n\n",memInstance -> mem[i]);	
-	    }
-	} 
-	for (int i = 7; i > 0; i--) {
-	    //printf("\n\n%lx\n\n", memInstance -> mem[address + i]);
-	    mem[count] = memInstance -> mem[address + i];   
-	    ++count;
-	}
-	uint64_t result = Tools::buildLong(mem);
-	//printf("%lx", result);
-	return result;
-    } else {
-	return 0;
+	return Tools::buildLong(&(memInstance -> mem[address]));
     }
+    return 0;
 }
 
 /**
@@ -102,14 +87,15 @@ uint8_t Memory::getByte(int32_t address, bool & imem_error)
  */
 void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
 {
-    imem_error = ((address % 8) != 0) && !(address >= 0 && address < MEMSIZE);
+    imem_error = ((address % 8) != 0) || !(address >= 0 && address + 7 < MEMSIZE);
     if (!imem_error) {
 	int count  = 0;
 	for (int i = address; i < address + 8; i++) {
-		memInstance -> mem[address] = Tools::getByte(value, count);
-		count++;
+	    memInstance -> mem[i] = Tools::getByte(value, count);
+	    count++;
 	}
-    } 
+    }
+
 }
 
 /**
