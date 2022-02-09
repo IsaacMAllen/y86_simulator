@@ -4,7 +4,6 @@
 #include "Tools.h"
 
 /**
- *
  * Isaac Allen
  * James Cooke
  */
