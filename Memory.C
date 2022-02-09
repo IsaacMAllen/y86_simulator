@@ -3,6 +3,12 @@
 #include "Memory.h"
 #include "Tools.h"
 
+/**
+ *
+ * Isaac Allen
+ *
+ */
+
 //memInstance will be initialized to the single instance
 //of the Memory class
 Memory * Memory::memInstance = NULL;
