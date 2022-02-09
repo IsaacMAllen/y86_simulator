@@ -6,7 +6,7 @@
 /**
  *
  * Isaac Allen
- *
+ * James Cooke
  */
 
 //cc_instance will be initialized to reference the single 

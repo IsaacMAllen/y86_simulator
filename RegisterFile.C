@@ -6,7 +6,7 @@
 /**
  *
  * Isaac Allen
- *
+ * James Cooke
  */
 
 //regInstance will be initialized to the single RegisterFile

@@ -6,7 +6,7 @@
 /**
  *
  * Isaac Allen
- *
+ * James Cooke
  */
 
 //memInstance will be initialized to the single instance
