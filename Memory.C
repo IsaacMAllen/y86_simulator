@@ -6,7 +6,7 @@
 /**
  * Isaac Allen
  * James Cooke
- */
+ **/
 
 //memInstance will be initialized to the single instance
 //of the Memory class
@@ -34,7 +34,7 @@ Memory::Memory()
 Memory * Memory::getInstance()
 {
     if (!memInstance) {
-	memInstance = (Memory *) malloc(sizeof(Memory));
+	memInstance = new Memory;
     }
     return memInstance;
 }

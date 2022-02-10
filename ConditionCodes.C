@@ -10,7 +10,7 @@
 
 //cc_instance will be initialized to reference the single 
 //instance of ConditionCodes
-ConditionCodes * ConditionCodes::ccInstance = NULL;
+ConditionCodes * ConditionCodes::ccInstance;
 
 /**
  * ConditionCodes constructor
@@ -33,7 +33,7 @@ ConditionCodes::ConditionCodes()
 ConditionCodes * ConditionCodes::getInstance()
 {
     if (!ccInstance) {
-	ccInstance = (ConditionCodes *) malloc(sizeof(ConditionCodes));
+	ccInstance = new ConditionCodes;
     }
     return ccInstance;
 }

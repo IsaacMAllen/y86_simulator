@@ -6,7 +6,7 @@
 /**
  * Isaac Allen
  * James Cooke
- */
+ **/
 
 //regInstance will be initialized to the single RegisterFile
 //object that is created
@@ -34,8 +34,8 @@ RegisterFile::RegisterFile()
  */
 RegisterFile * RegisterFile::getInstance()
 {
-    if (regInstance == NULL) {
-	regInstance = (RegisterFile *) malloc(sizeof(RegisterFile));
+    if (!regInstance) {
+	regInstance = new RegisterFile;
     }
     return regInstance;
 }
