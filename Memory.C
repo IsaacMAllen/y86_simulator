@@ -18,9 +18,8 @@ Memory * Memory::memInstance = NULL;
  */
 Memory::Memory()
 {
-    memInstance = (Memory *) malloc(sizeof(Memory));
     for (int i = 0; i < MEMSIZE; ++i) {
-	memInstance -> mem[i] = 0;
+	mem[i] = 0;
     }
 }
 
@@ -54,7 +53,7 @@ uint64_t Memory::getLong(int32_t address, bool & imem_error)
 {
     imem_error = ((address % 8) != 0) || !(address >= 0 && address + 7 < MEMSIZE);
     if (!imem_error) {
-	return Tools::buildLong(&(memInstance -> mem[address]));
+	return Tools::buildLong(&(mem[address]));
     }
     return 0;
 }
@@ -73,7 +72,7 @@ uint8_t Memory::getByte(int32_t address, bool & imem_error)
 {
     imem_error = !(address >= 0 && address < MEMSIZE);
     if (!imem_error) {
-	return memInstance -> mem[address];
+	return mem[address];
     }
     return 0;
 }
@@ -95,7 +94,7 @@ void Memory::putLong(uint64_t value, int32_t address, bool & imem_error)
     if (!imem_error) {
 	int count  = 0;
 	for (int i = address; i < address + 8; i++) {
-	    memInstance -> mem[i] = Tools::getByte(value, count);
+	    mem[i] = Tools::getByte(value, count);
 	    count++;
 	}
     }
@@ -117,7 +116,7 @@ void Memory::putByte(uint8_t value, int32_t address, bool & imem_error)
 {
     imem_error = !(address >= 0 && address < MEMSIZE);
     if (!imem_error) {
-	memInstance -> mem[address] = value;
+	mem[address] = value;
     }
 }
 

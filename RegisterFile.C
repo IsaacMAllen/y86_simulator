@@ -18,9 +18,8 @@ RegisterFile * RegisterFile::regInstance = NULL;
  */
 RegisterFile::RegisterFile()
 {
-    regInstance = (RegisterFile *) malloc(sizeof(RegisterFile));
     for (int i = 0; i < REGSIZE; ++i) {
-	regInstance -> reg[i] = 0;
+	reg[i] = 0;
     }
 }
 
@@ -56,7 +55,7 @@ uint64_t RegisterFile::readRegister(int32_t regNumber, bool & error)
 {
     // Pending test regarding reading from unused register 0xf
     if (regNumber < 0xf && regNumber >= 0) {
-	uint64_t res = regInstance -> reg[regNumber];
+	uint64_t res = reg[regNumber];
 	error = false;
 	return res;
     }
@@ -77,7 +76,7 @@ void RegisterFile::writeRegister(uint64_t value, int32_t regNumber,
 	bool & error)
 {
     if (regNumber < 0xf && regNumber >=0) {
-	regInstance -> reg[regNumber] = value;
+	reg[regNumber] = value;
 	error = false;
 	return;
     }

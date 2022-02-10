@@ -18,8 +18,7 @@ ConditionCodes * ConditionCodes::ccInstance;
  */
 ConditionCodes::ConditionCodes()
 {
-    ccInstance = (ConditionCodes *) malloc(sizeof(ConditionCodes));
-    ccInstance -> codes = 0;
+    codes = 0;
 }
 
 /**
@@ -55,7 +54,7 @@ bool ConditionCodes::getConditionCode(int32_t ccNum, bool & error)
     //Don't use "magic" numbers.
     if (ccNum == OF || ccNum == SF || ccNum == ZF) {
 	error = false;
-	return Tools::getBits(ccInstance -> codes, ccNum, ccNum);
+	return Tools::getBits(codes, ccNum, ccNum);
     }
     error = true;
     return false;
@@ -81,10 +80,10 @@ void ConditionCodes::setConditionCode(bool value, int32_t ccNum,
     if (ccNum == OF || ccNum == SF || ccNum == ZF) {
 	error = false;
 	if (value) {
-	    ccInstance -> codes = Tools::setBits(ccInstance -> codes, ccNum, ccNum);
+	    ccInstance -> codes = Tools::setBits(codes, ccNum, ccNum);
 	}
 	else {	
-	    ccInstance -> codes = Tools::clearBits(ccInstance -> codes, ccNum, ccNum);
+	    ccInstance -> codes = Tools::clearBits(codes, ccNum, ccNum);
 	}
     }
 
