@@ -61,15 +61,7 @@ Loader::Loader(int argc, char * argv[])
  */
 bool Loader::hasAddress(std::string line)
 {
-    char * string = &line[0];
-    int i = 0;
-    while(*string != ':') {
-	++string;
-	i++;
-    }
-    int32_t address = convert(line, 0, i);
-
-
+    return line[0] == '0';
 }
 
 /*
@@ -87,6 +79,7 @@ bool Loader::hasAddress(std::string line)
  */
 bool Loader::hasData(std::string line)
 {
+    return line[DATABEGIN] != ' ';
 }
 
 /*
@@ -100,6 +93,7 @@ bool Loader::hasData(std::string line)
  */
 bool Loader::hasComment(std::string line)
 {
+    return line.length() >= COMMENT && line[COMMENT] == '|'; 
 }
 
 /*
