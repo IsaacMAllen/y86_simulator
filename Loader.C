@@ -20,31 +20,31 @@
 //This method is complete and does not need to be modified.  
 Loader::Loader(int argc, char * argv[])
 {
-   std::ifstream inf;  //input file stream for reading from file
-   int lineNumber = 1;
-   lastAddress = -1;
-   loaded = false;
+    std::ifstream inf;  //input file stream for reading from file
+    int lineNumber = 1;
+    lastAddress = -1;
+    loaded = false;
 
-   //if no file name given or filename badly formed, return without loading
-   if (argc < 2 || badFile(argv[1])) return;  
-   inf.open(argv[1]);
+    //if no file name given or filename badly formed, return without loading
+    if (argc < 2 || badFile(argv[1])) return;  
+    inf.open(argv[1]);
 
-   //if file can't be opened, return without loading
-   if (!inf.is_open()) return;  
-  
-   std::string line;
-   while (getline(inf, line))
-   {
-      if (hasErrors(line))
-      {
-         std::cout << "Error on line " << std::dec << lineNumber 
-              << ": " << line << std::endl;
-         return;
-      }
-      if (hasAddress(line) && hasData(line)) loadLine(line);
-      lineNumber++;
-   }
-   loaded = true;
+    //if file can't be opened, return without loading
+    if (!inf.is_open()) return;  
+
+    std::string line;
+    while (getline(inf, line))
+    {
+	if (hasErrors(line))
+	{
+	    std::cout << "Error on line " << std::dec << lineNumber 
+		<< ": " << line << std::endl;
+	    return;
+	}
+	if (hasAddress(line) && hasData(line)) loadLine(line);
+	lineNumber++;
+    }
+    loaded = true;
 }
 
 /*
@@ -105,10 +105,10 @@ bool Loader::hasComment(std::string line)
  */
 void Loader::loadLine(std::string line)
 {
-   //Hints:
-   //Use the convert method to convert the characters
-   //that represent the address into a number.
-   //Also, use the convert method for each byte of data.
+    //Hints:
+    //Use the convert method to convert the characters
+    //that represent the address into a number.
+    //Also, use the convert method for each byte of data.
 }
 
 /*
@@ -126,7 +126,7 @@ void Loader::loadLine(std::string line)
  */
 int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
-   //Hint: you need something to convert a string to an int such as strtol 
+    //Hint: you need something to convert a string to an int such as strtol 
 }
 
 /*
@@ -140,42 +140,42 @@ int32_t Loader::convert(std::string line, int32_t start, int32_t len)
  */
 bool Loader::hasErrors(std::string line)
 {
-   //checking for errors in a particular order can significantly 
-   //simplify your code
-   //1) line is at least COMMENT characters long and contains a '|' in 
-   //   column COMMENT. If not, return true
-   //   Hint: use hasComment
-   //
-   //2) check whether line has an address.  If it doesn't,
-   //   return result of isSpaces (line must be all spaces up
-   //   to the | character)
-   //   Hint: use hasAddress and isSpaces
-   //
-   //3) return true if the address is invalid
-   //   Hint: use errorAddress 
-   //
-   //4) check whether the line has data. If it doesn't
-   //   return result of isSpaces (line must be all spaces from
-   //   after the address up to the | character)
-   //   Hint: use hasData and isSpaces
-   //
-   //5) if you get past 4), line has an address and data. Check to
-   //   make sure the data is valid using errorData
-   //   Hint: use errorData
-   //
-   //6) if you get past 5), line has a valid address and valid data.
-   //   Make sure that the address on this line is > the last address
-   //   stored to (lastAddress is a private data member)
-   //   Hint: use convert to convert address to a number and compare
-   //   to lastAddress
-   //
-   //7) Make sure that the last address of the data to be stored
-   //   by this line doesn't exceed the memory size
-   //   Hint: use numDBytes as set by errorData, MEMSIZE in Memory.h,
-   //         and addr returned by convert
+    //checking for errors in a particular order can significantly 
+    //simplify your code
+    //1) line is at least COMMENT characters long and contains a '|' in 
+    //   column COMMENT. If not, return true
+    //   Hint: use hasComment
+    //
+    //2) check whether line has an address.  If it doesn't,
+    //   return result of isSpaces (line must be all spaces up
+    //   to the | character)
+    //   Hint: use hasAddress and isSpaces
+    //
+    //3) return true if the address is invalid
+    //   Hint: use errorAddress 
+    //
+    //4) check whether the line has data. If it doesn't
+    //   return result of isSpaces (line must be all spaces from
+    //   after the address up to the | character)
+    //   Hint: use hasData and isSpaces
+    //
+    //5) if you get past 4), line has an address and data. Check to
+    //   make sure the data is valid using errorData
+    //   Hint: use errorData
+    //
+    //6) if you get past 5), line has a valid address and valid data.
+    //   Make sure that the address on this line is > the last address
+    //   stored to (lastAddress is a private data member)
+    //   Hint: use convert to convert address to a number and compare
+    //   to lastAddress
+    //
+    //7) Make sure that the last address of the data to be stored
+    //   by this line doesn't exceed the memory size
+    //   Hint: use numDBytes as set by errorData, MEMSIZE in Memory.h,
+    //         and addr returned by convert
 
-   // if control reaches here, no errors found
-   return false;
+    // if control reaches here, no errors found
+    return false;
 }
 
 /*
@@ -197,7 +197,7 @@ bool Loader::hasErrors(std::string line)
  */
 bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
-   //Hint: use isxdigit and isSpaces
+    //Hint: use isxdigit and isSpaces
 }
 
 /*
@@ -211,7 +211,7 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
  */
 bool Loader::errorAddr(std::string line)
 {
-   //Hint: use isxdigit
+    //Hint: use isxdigit
 }
 
 /* 
@@ -236,7 +236,7 @@ bool Loader::isSpaces(std::string line, int32_t start, int32_t end)
  */
 bool Loader::isLoaded()
 {
-   return loaded;  
+    return loaded;  
 }
 
 /*
@@ -250,7 +250,33 @@ bool Loader::isLoaded()
  */
 bool Loader::badFile(std::string filename)
 {
-   //Hint: use std::string length method and C strcmp (or std::string find
-   //      or std::string at or ...)
-   return true;
+    //Hint: use std::string length method and C strcmp (or std::string find
+    //      or std::string at or ...)
+    char * file = &filename[0];
+    int length = 0;
+    while (*file != '.' && *file != '\0') {
+	++length;
+	++file;
+    }
+    if (*file != '.' || length < 4) {
+	return false;
+    }
+    else {
+	++file;
+	for (int i = 0; i < 3; ++i) {
+	    switch (i) {
+		case 0:
+		    if (*file != 'y')
+			return false;
+		    break;
+		case 1:
+		    if (*file != 'o')
+			return false;
+		    break;
+		case 2:
+		    return *file == '\0';
+	    }
+	    ++file;	    
+	}
+    }
 }
