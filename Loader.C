@@ -284,7 +284,7 @@ bool Loader::badFile(std::string filename)
 	++file;
     }
     if (*file != '.' || length < 4) {
-	return false;
+	return true;
     }
     else {
 	++file;
@@ -292,16 +292,17 @@ bool Loader::badFile(std::string filename)
 	    switch (i) {
 		case 0:
 		    if (*file != 'y')
-			return false;
+			return true;
 		    break;
 		case 1:
 		    if (*file != 'o')
-			return false;
+			return true;
 		    break;
 		case 2:
-		    return *file == '\0';
+		    return *file != '\0';
 	    }
 	    ++file;	    
 	}
     }
+    return true;
 }
