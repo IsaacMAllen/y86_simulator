@@ -61,6 +61,15 @@ Loader::Loader(int argc, char * argv[])
  */
 bool Loader::hasAddress(std::string line)
 {
+    char * string = &line[0];
+    int i = 0;
+    while(*string != ':') {
+	++string;
+	i++;
+    }
+    int32_t address = convert(line, 0, i);
+
+
 }
 
 /*
@@ -109,6 +118,8 @@ void Loader::loadLine(std::string line)
     //Use the convert method to convert the characters
     //that represent the address into a number.
     //Also, use the convert method for each byte of data.
+    //
+
 }
 
 /*
@@ -126,7 +137,10 @@ void Loader::loadLine(std::string line)
  */
 int32_t Loader::convert(std::string line, int32_t start, int32_t len)
 {
-    //Hint: you need something to convert a string to an int such as strtol 
+    //Hint: you need something to convert a string to an int such as strtol
+    std::string copyStr = line.substr(start,len);
+    return std::stoul(copyStr, NULL, 16);
+       
 }
 
 /*
