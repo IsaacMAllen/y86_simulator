@@ -113,7 +113,25 @@ void Loader::loadLine(std::string line)
     //that represent the address into a number.
     //Also, use the convert method for each byte of data.
     //
+    char * str = &line[0];
+    int i = 0;
+    
+    while (*str != ':') {
+	i++;
+	str++;
+    }
+    int32_t address = convert(line,ADDRBEGIN,i);
+    
+    int j = 0;
+    bool memError = false;
+    for (int i = DATABEGIN; line[i] != ' '; i += 2) {
 
+	std::string byte = line[i].resize(2);
+	uint8_t byteNum = (uint8_t) convert(byte, 0, 2);
+	Memory::getInstance()->putByte(byteNum, address + j, memError);
+	j++;	
+	
+    }    
 }
 
 /*
