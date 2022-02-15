@@ -251,21 +251,23 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
     //Hint: use isxdigit and isSpaces
     char *ptr = &line[DATABEGIN];
-
+    //Init numDBytes to zero to assure consitency
+    numDBytes = 0;
     while (*ptr != ' '){
-	if ( *ptr < 48) {
+	if (*ptr < '0') {
 	    return true;
 	}
-	else if (*ptr > 57 && *ptr < 63) {
+	else if (*ptr > '9' && *ptr < 'A') {
 	    return true;
 	}
-	else if (*ptr > 90 && *ptr < 97) {
+	else if (*ptr > 'Z' && *ptr < 'a') {
 	    return true;
 	}
-	else if(*ptr > 122) {
+	else if(*ptr > 'z') {
 	    return true;
 	}
 	ptr++;
+	numDBytes++;
     }
 
     while(*ptr != '|') {
@@ -291,6 +293,37 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 bool Loader::errorAddr(std::string line)
 {
     //Hint: use isxdigit
+    int count = 0;
+    char *ptr = &line[count];
+    while (*ptr != ':'){
+	if (!count) {
+	    if (*ptr != '0') {
+		return true;
+	    }
+	} else if (count == 1) {
+	    if (*ptr != 'x') {
+		return true;
+	    }
+	} 
+	else {
+
+	    if (*ptr < '0') {
+		return true;
+	    }
+	    else if (*ptr > '9' && *ptr < 'A') {
+		return true;
+	    }
+	    else if (*ptr > 'Z' && *ptr < 'a') {
+		return true;
+	    }
+	    else if(*ptr > 'z') {
+		return true;
+	    }
+	    ptr++;
+	}
+    }
+    return false;
+
 }
 
 /* 
