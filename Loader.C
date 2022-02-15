@@ -200,7 +200,34 @@ bool Loader::hasErrors(std::string line)
     //         and addr returned by convert
 
     // if control reaches here, no errors found
+    if (!hasComment(line)){
+	return true;
+    }
+    else if (!hasAddress(line)) {
+	return isSpaces(line);
+    }
+    else if (errorAdddress(line)) {
+	return true;
+    }
+    else if (!hasData(line)) {
+	return isSpaces(line);
+    }
+    else if (errorData(line)) {
+	return true;
+    }
+    else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
+	return true;
+    }
+    else {
+	int32_t numDBytes = 0;
+	errorData(line, numDBytes);
+	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
+	if (beginAddr + numDBytes > MEMSIZE) {
+	    return true;
+	}
+    }
     return false;
+    
 }
 
 /*
