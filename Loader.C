@@ -252,8 +252,8 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
     //Hint: use isxdigit and isSpaces
     char *ptr = &line[DATABEGIN];
-    //Init numDBytes to zero to assure consitency
-    numDBytes = 0;
+    
+    int32_t numDNibbles = 0;
     while (*ptr != ' '){
 	if (*ptr < '0') {
 	    return true;
@@ -261,14 +261,14 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 	else if (*ptr > '9' && *ptr < 'A') {
 	    return true;
 	}
-	else if (*ptr > 'Z' && *ptr < 'a') {
+	else if (*ptr > 'F' && *ptr < 'a') {
 	    return true;
 	}
-	else if(*ptr > 'z') {
+	else if(*ptr > 'f') {
 	    return true;
 	}
 	ptr++;
-	numDBytes++;
+	numDNibbles++;
     }
 
     while(*ptr != '|') {
@@ -277,8 +277,8 @@ bool Loader::errorData(std::string line, int32_t & numDBytes)
 	}
 	ptr++;
     }
-
-    return false;
+    numDBytes = numDNibbles / 2;
+    return numDNibbles % 2;
 
 }
 
@@ -316,10 +316,10 @@ bool Loader::errorAddr(std::string line)
 	    else if (*ptr > '9' && *ptr < 'A') {
 		return true;
 	    }
-	    else if (*ptr > 'Z' && *ptr < 'a') {
+	    else if (*ptr > 'F' && *ptr < 'a') {
 		return true;
 	    }
-	    else if(*ptr > 'z') {
+	    else if(*ptr > 'f') {
 		return true;
 	    }
 	    ptr++;
