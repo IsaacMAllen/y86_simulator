@@ -115,13 +115,13 @@ void Loader::loadLine(std::string line)
     //
     char * str = &line[0];
     int i = 0;
-    
+
     while (*str != ':') {
 	i++;
 	str++;
     }
     int32_t address = convert(line,ADDRBEGIN,i);
-    
+
     int j = 0;
     bool memError = false;
     for (int i = DATABEGIN; line[i] != ' '; i += 2) {
@@ -129,7 +129,7 @@ void Loader::loadLine(std::string line)
 	uint8_t byteNum = (uint8_t) convert(byte, 0, 2);
 	Memory::getInstance()->putByte(byteNum, address + j, memError);
 	j++;	
-	
+
     }    
 }
 
@@ -151,7 +151,7 @@ int32_t Loader::convert(std::string line, int32_t start, int32_t len)
     //Hint: you need something to convert a string to an int such as strtol
     std::string copyStr = line.substr(start,len);
     return std::stoul(copyStr, NULL, 16);
-       
+
 }
 
 /*
@@ -200,26 +200,26 @@ bool Loader::hasErrors(std::string line)
     //         and addr returned by convert
 
     // if control reaches here, no errors found
+    int32_t numDBytes = 0;
     if (!hasComment(line)){
 	return true;
     }
     else if (!hasAddress(line)) {
-	return isSpaces(line);
+	return isSpaces(line, 0, COMMENT - 1);
     }
-    else if (errorAdddress(line)) {
+    else if (errorAddr(line)) {
 	return true;
     }
     else if (!hasData(line)) {
-	return isSpaces(line);
+	return isSpaces(line, ADDREND + 2, COMMENT - 1);
     }
-    else if (errorData(line)) {
+    else if (errorData(line, numDBytes)) {
 	return true;
     }
     else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
 	return true;
     }
     else {
-	int32_t numDBytes = 0;
 	errorData(line, numDBytes);
 	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
 	if (beginAddr + numDBytes > MEMSIZE) {
@@ -227,7 +227,7 @@ bool Loader::hasErrors(std::string line)
 	}
     }
     return false;
-    
+
 }
 
 /*
@@ -280,6 +280,11 @@ bool Loader::errorAddr(std::string line)
  */
 bool Loader::isSpaces(std::string line, int32_t start, int32_t end)
 {
+    for (int i = 0; i < end - start; ++i) {
+	if (line.at(i) != ' ')
+	    return false;
+    }
+    return true;
 }
 
 /*
