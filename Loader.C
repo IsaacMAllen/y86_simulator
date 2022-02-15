@@ -128,6 +128,7 @@ void Loader::loadLine(std::string line)
 	std::string byte = line.substr(i,2);
 	uint8_t byteNum = (uint8_t) convert(byte, 0, 2);
 	Memory::getInstance()->putByte(byteNum, address + j, memError);
+	lastAddress = address + j;
 	j++;	
 
     }    
@@ -251,6 +252,10 @@ bool Loader::hasErrors(std::string line)
 bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
     //Hint: use isxdigit and isSpaces
+    if (line[DATABEGIN - 1] != ' ') {
+	return true;
+    }
+
     char *ptr = &line[DATABEGIN];
     
     int32_t numDNibbles = 0;
