@@ -250,6 +250,33 @@ bool Loader::hasErrors(std::string line)
 bool Loader::errorData(std::string line, int32_t & numDBytes)
 {
     //Hint: use isxdigit and isSpaces
+    char *ptr = &line[DATABEGIN];
+
+    while (*ptr != ' '){
+	if ( *ptr < 48) {
+	    return true;
+	}
+	else if (*ptr > 57 && *ptr < 63) {
+	    return true;
+	}
+	else if (*ptr > 90 && *ptr < 97) {
+	    return true;
+	}
+	else if(*ptr > 122) {
+	    return true;
+	}
+	ptr++;
+    }
+
+    while(*ptr != '|') {
+	if (*ptr != ' ') {
+	    return true;
+	}
+	ptr++;
+    }
+
+    return false;
+
 }
 
 /*
