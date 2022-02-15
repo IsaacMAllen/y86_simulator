@@ -205,27 +205,28 @@ bool Loader::hasErrors(std::string line)
 	return true;
     }
     else if (!hasAddress(line)) {
-	return isSpaces(line, 0, COMMENT - 1);
+	return !isSpaces(line, 0, COMMENT);
+
     }
-    else if (errorAddr(line)) {
-	return true;
-    }
-    else if (!hasData(line)) {
-	return isSpaces(line, ADDREND + 2, COMMENT - 1);
-    }
-    else if (errorData(line, numDBytes)) {
-	return true;
-    }
-    else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
-	return true;
-    }
-    else {
-	errorData(line, numDBytes);
-	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
-	if (beginAddr + numDBytes > MEMSIZE) {
-	    return true;
-	}
-    }
+//    else if (errorAddr(line)) {
+//	return true;
+//    }
+//    else if (!hasData(line)) {
+//	return isSpaces(line, ADDREND + 2, COMMENT - 1);
+//    }
+//    else if (errorData(line, numDBytes)) {
+//	return true;
+//    }
+//    else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
+//	return true;
+//    }
+//    else {
+//	errorData(line, numDBytes);
+//	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
+//	if (beginAddr + numDBytes > MEMSIZE) {
+//	    return true;
+//	}
+//    }
     return false;
 
 }
@@ -340,8 +341,8 @@ bool Loader::errorAddr(std::string line)
  */
 bool Loader::isSpaces(std::string line, int32_t start, int32_t end)
 {
-    for (int i = 0; i < end - start; ++i) {
-	if (line.at(i) != ' ')
+    for (int i = start; i < end; ++i) {
+	if (line[i] != ' ')
 	    return false;
     }
     return true;
