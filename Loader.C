@@ -208,25 +208,25 @@ bool Loader::hasErrors(std::string line)
 	return !isSpaces(line, 0, COMMENT);
 
     }
-//    else if (errorAddr(line)) {
-//	return true;
-//    }
-//    else if (!hasData(line)) {
-//	return isSpaces(line, ADDREND + 2, COMMENT - 1);
-//    }
-//    else if (errorData(line, numDBytes)) {
-//	return true;
-//    }
-//    else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
-//	return true;
-//    }
-//    else {
-//	errorData(line, numDBytes);
-//	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
-//	if (beginAddr + numDBytes > MEMSIZE) {
-//	    return true;
-//	}
-//    }
+    else if (errorAddr(line)) {
+	return true;
+    }
+ //    else if (!hasData(line)) {
+ //	return isSpaces(line, ADDREND + 2, COMMENT - 1);
+ //    }
+ //    else if (errorData(line, numDBytes)) {
+ //	return true;
+ //    }
+ //    else if (lastAddress > convert(line,ADDRBEGIN,ADDREND)) {
+ //	return true;
+ //    }
+ //    else {
+ //	errorData(line, numDBytes);
+ //	int32_t beginAddr = convert(line, ADDRBEGIN,ADDREND);
+ //	if (beginAddr + numDBytes > MEMSIZE) {
+ //	    return true;
+ //	}
+ //    }
     return false;
 
 }
@@ -301,10 +301,12 @@ bool Loader::errorAddr(std::string line)
 	    if (*ptr != '0') {
 		return true;
 	    }
+	    ptr++;
 	} else if (count == 1) {
 	    if (*ptr != 'x') {
 		return true;
 	    }
+	    ptr++;
 	} 
 	else {
 
@@ -322,6 +324,7 @@ bool Loader::errorAddr(std::string line)
 	    }
 	    ptr++;
 	}
+	count++;
     }
     return false;
 
