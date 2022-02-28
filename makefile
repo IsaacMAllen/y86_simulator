@@ -34,7 +34,7 @@ DecodeStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h Stage.h D
 
 ExecuteStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h Stage.h ExecuteStage.h Status.h Debug.h
 
-MemoryStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h Stage.h MemoryStage.h Status.h Debug.h
+MemoryStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h E.h W.h Stage.h MemoryStage.h Status.h Debug.h
 
 FetchStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h W.h Stage.h FetchStage.h Status.h Debug.h
 
