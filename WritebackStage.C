@@ -8,7 +8,7 @@
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
-#include "FetchStage.h"
+#include "WritebackStage.h"
 #include "Status.h"
 #include "Debug.h"
 
@@ -22,7 +22,7 @@
  * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
  *         MemoryStage, WritebackStage instances)
  */
-bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
+bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    return false;
 }
@@ -33,7 +33,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  *
  * @param: pregs - array of the pipeline register (F, D, E, M, W instances)
  */
-void FetchStage::doClockHigh(PipeReg ** pregs)
+void WritebackStage::doClockHigh(PipeReg ** pregs)
 {
 
 }
