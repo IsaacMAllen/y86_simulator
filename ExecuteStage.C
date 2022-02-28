@@ -3,10 +3,8 @@
 #include "RegisterFile.h"
 #include "PipeRegField.h"
 #include "PipeReg.h"
-#include "F.h"
-#include "D.h"
 #include "M.h"
-#include "W.h"
+#include "E.h"
 #include "Stage.h"
 #include "ExecuteStage.h"
 #include "Status.h"
@@ -24,7 +22,15 @@
  */
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-   return false;
+    E * ereg = (E *) pregs[EREG];
+    M * mreg = (M *) pregs[MREG];
+
+    uint64_t cnd = 0;
+    uint64_t valE = 0;
+
+    setMInput(mreg, ereg -> getstat() -> getOutput(), ereg -> geticode() -> getOutput(), cnd, valE, ereg -> getvalA() -> getOutput(), ereg -> getdstE() -> getOutput(), ereg -> getdstM() -> getOutput());
+
+    return false;
 }
 
 /* doClockHigh
@@ -38,3 +44,8 @@ void ExecuteStage::doClockHigh(PipeReg ** pregs)
 
 }
 
+
+void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t cnd, uint64_t valE, uint64_t valA, uint64_t dstE, uint64_t dstM) {
+
+
+}

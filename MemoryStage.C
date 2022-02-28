@@ -25,14 +25,6 @@
  */
 bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-    E * ereg = (E *) pregs[EREG];
-    M * mreg = (M *) pregs[MREG];
-    
-    uint64_t cnd = 0;
-    uint64_t valE = 0;
-
-    setMInput(mreg, ereg -> getstat() -> getOutput(), ereg -> geticode() -> getOutput(), cnd, valE, ereg -> getvalA() -> getOutput(), ereg -> getdstE() -> getOutput(), ereg -> getdstM() -> getOutput());
-
    return false;
 }
 
@@ -46,6 +38,3 @@ void MemoryStage::doClockHigh(PipeReg ** pregs)
 {
 }
 
-void MemoryStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t cnd, uint64_t valE, uint64_t valA, uint64_t dstE, uint64_t dstM) {
-
-}
