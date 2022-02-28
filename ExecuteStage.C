@@ -8,7 +8,7 @@
 #include "M.h"
 #include "W.h"
 #include "Stage.h"
-#include "FetchStage.h"
+#include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
 
