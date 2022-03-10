@@ -24,6 +24,8 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
    F * freg = (F *) pregs[FREG];
    D * dreg = (D *) pregs[DREG];
+   M * mreg = (M *) pregs[MREG];
+   W * wreg = (W *) pregs[WREG];
    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
@@ -33,7 +35,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
    //rA, rB, and valC to be set.
    //The lab assignment describes what methods need to be
    //written.
-
+	uint64_t f_pc = selectPC(freg, mreg, wreg);
    //The value passed to setInput below will need to be changed
    freg->getpredPC()->setInput(f_pc + 1);
 
@@ -88,4 +90,19 @@ void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode,
    dreg->getvalC()->setInput(valC);
    dreg->getvalP()->setInput(valP);
 }
-     
+
+uint64_t selectPC(F * freg, M * mreg, W * wreg)
+{
+	if (mreg->geticode()->getOutput() == IJJX && !(mreg->getCnd()->getOutput()))
+	{
+		return mreg->getvalA()->getOutput();
+	}
+	else if (wreg->geticode()->getOutput() == IRET)
+	{
+		return wreg->getvalM()->getOutput();
+	}
+
+	return freg->getpredPC()->getOutput();
+}
+
+
