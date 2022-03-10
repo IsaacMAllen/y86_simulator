@@ -34,7 +34,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     D * dreg = (D *) pregs[DREG];
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
-    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
+    uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
     uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
     //code missing here to select the value of the PC
@@ -43,9 +43,10 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //rA, rB, and valC to be set.
     //The lab assignment describes what methods need to be
     //written.
-    f_pc = selectPC(freg, mreg, wreg);
+    
+    valP = PCincrement(selectPC(freg, mreg, wreg), needRegIds(icode), needValC(icode));
     //The value passed to setInput below will need to be changed
-    freg->getpredPC()->setInput(f_pc + 1);
+    freg->getpredPC()->setInput(predictPC(icode, valC, valP));
 
     //provide the input values for the D register
     setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
@@ -86,8 +87,7 @@ void FetchStage::doClockHigh(PipeReg ** pregs) {
  * @param: valP - value to be stored in the valP pipeline register within D
  */
 void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode, 
-        uint64_t ifun, uint64_t rA, uint64_t rB,
-        uint64_t valC, uint64_t valP) {
+    uint64_t ifun, uint64_t rA, uint64_t rB, uint64_t valC, uint64_t valP) {
     dreg->getstat()->setInput(stat);
     dreg->geticode()->setInput(icode);
     dreg->getifun()->setInput(ifun);
@@ -115,24 +115,24 @@ bool needRegIds(uint64_t f_icode) {
 }
 
 bool needValC(uint64_t f_icode) {
-    
-	return (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ) || (f_icode == IJXX) || (f_icode == ICALL); 
+
+    return (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ) || (f_icode == IJXX) || (f_icode == ICALL); 
 }
 
 uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP) {
-	if ((f_icode == IJXX) || (f_icode == ICALL)) return f_valC;
-	return f_valP;
+    if ((f_icode == IJXX) || (f_icode == ICALL)) return f_valC;
+    return f_valP;
 }
 
 uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC) {
-	if (needValC) {
-		f_pc += 11;
-	}
-	else if (needRegIds && !needValC) {
-		f_pc += 3;
-	}
-	else {
-		f_pc += 1;
-	}
-	return f_pc;
+    if (needValC) {
+        f_pc += 11;
+    }
+    else if (needRegIds && !needValC) {
+        f_pc += 3;
+    }
+    else {
+        f_pc += 1;
+    }
+    return f_pc;
 }
