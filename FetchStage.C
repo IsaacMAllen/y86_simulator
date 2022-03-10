@@ -16,6 +16,9 @@
 
 uint64_t selectPC(F * freg, M * mreg, W * wreg);
 bool needRegIds(uint64_t f_icode);
+bool needValC(uint64_t f_icode);
+uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
+uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
 
 /*
  * doClockLow:
@@ -108,5 +111,28 @@ uint64_t selectPC(F * freg, M * mreg, W * wreg) {
 }
 
 bool needRegIds(uint64_t f_icode) {
-    return (f_icode && IRRMOVQ) || (f_icode && IOPQ) || (f_icode && IPUSHQ) || (f_icode && IIRMOVQ) || (f_icode && IRMMOVQ) || (f_icode && IMRMOVQ); 
+    return (f_icode == IRRMOVQ) || (f_icode == IOPQ) || (f_icode == IPUSHQ) || (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ); 
+}
+
+bool needValC(uint64_t f_icode) {
+    
+	return (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ) || (f_icode == IJXX) || (f_icode == ICALL); 
+}
+
+uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP) {
+	if ((f_icode == IJXX) || (f_icode == ICALL)) return f_valC;
+	return f_valP;
+}
+
+uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC) {
+	if (needValC) {
+		f_pc += 11;
+	}
+	else if (needRegIds && !needValC) {
+		f_pc += 3;
+	}
+	else {
+		f_pc += 1;
+	}
+	return f_pc;
 }
