@@ -16,7 +16,7 @@
  * Performs the Memory stage combinational logic that is performed when
  * the clock edge is low.
  *
- * @param: pregs - array of the pipeline register sets (F,D,E,M, W instances)
+ * @param: pregs - array of the pipeline register sets (F, D, E, M, W instances)
  * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
  *         MemoryStage, WritebackStage instances)
  */
@@ -27,7 +27,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	uint64_t valM = 0;
 
 	setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(), valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
-	return true;
+	return false;
 }
 
 /* doClockHigh
@@ -39,7 +39,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 void MemoryStage::doClockHigh(PipeReg ** pregs)
 {
 
-	W * wreg = (W *) pregs[MREG];
+	W * wreg = (W *) pregs[WREG];
 
 	wreg->getstat()->normal();
 	wreg->geticode()->normal();

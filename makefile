@@ -28,9 +28,9 @@ W.o: RegisterFile.h Instructions.h PipeRegField.h PipeReg.h W.h Status.h
 
 PipeRegField.o: PipeRegField.h
 
-WritebackStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h E.h W.h Stage.h WritebackStage.h Status.h Debug.h
+WritebackStage.o: RegisterFile.h PipeRegField.h PipeReg.h Stage.h WritebackStage.h Status.h Debug.h W.h
 
-DecodeStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h E.h W.h Stage.h DecodeStage.h Status.h Debug.h
+DecodeStage.o: PipeReg.h PipeRegField.h D.h F.h M.h W.h E.h Stage.h Status.h Debug.h DecodeStage.h 
 
 ExecuteStage.o: RegisterFile.h PipeRegField.h PipeReg.h M.h E.h Stage.h ExecuteStage.h Status.h Debug.h
 

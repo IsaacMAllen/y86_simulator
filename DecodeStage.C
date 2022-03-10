@@ -12,8 +12,6 @@
 #include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
-
-
 /*
  * doClockLow:
  * Performs the Decode stage combinational logic that is performed when
