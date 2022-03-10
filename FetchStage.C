@@ -5,11 +5,17 @@
 #include "PipeReg.h"
 #include "F.h"
 #include "D.h"
+#include "M.h"
+#include "W.h"
+#include "Instructions.h"
 #include "Stage.h"
 #include "FetchStage.h"
 #include "Status.h"
 #include "Debug.h"
 
+
+uint64_t selectPC(F * freg, M * mreg, W * wreg);
+bool needRegIds(uint64_t f_icode);
 
 /*
  * doClockLow:
@@ -20,28 +26,27 @@
  * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
  *         MemoryStage, WritebackStage instances)
  */
-bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
-{
-   F * freg = (F *) pregs[FREG];
-   D * dreg = (D *) pregs[DREG];
-   M * mreg = (M *) pregs[MREG];
-   W * wreg = (W *) pregs[WREG];
-   uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
-   uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
+bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
+    F * freg = (F *) pregs[FREG];
+    D * dreg = (D *) pregs[DREG];
+    M * mreg = (M *) pregs[MREG];
+    W * wreg = (W *) pregs[WREG];
+    uint64_t f_pc = 0, icode = 0, ifun = 0, valC = 0, valP = 0;
+    uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
 
-   //code missing here to select the value of the PC
-   //and fetch the instruction from memory
-   //Fetching the instruction will allow the icode, ifun,
-   //rA, rB, and valC to be set.
-   //The lab assignment describes what methods need to be
-   //written.
-	uint64_t f_pc = selectPC(freg, mreg, wreg);
-   //The value passed to setInput below will need to be changed
-   freg->getpredPC()->setInput(f_pc + 1);
+    //code missing here to select the value of the PC
+    //and fetch the instruction from memory
+    //Fetching the instruction will allow the icode, ifun,
+    //rA, rB, and valC to be set.
+    //The lab assignment describes what methods need to be
+    //written.
+    f_pc = selectPC(freg, mreg, wreg);
+    //The value passed to setInput below will need to be changed
+    freg->getpredPC()->setInput(f_pc + 1);
 
-   //provide the input values for the D register
-   setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
-   return false;
+    //provide the input values for the D register
+    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+    return false;
 }
 
 /* doClockHigh
@@ -50,19 +55,18 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages)
  *
  * @param: pregs - array of the pipeline register (F, D, E, M, W instances)
  */
-void FetchStage::doClockHigh(PipeReg ** pregs)
-{
-   F * freg = (F *) pregs[FREG];
-   D * dreg = (D *) pregs[DREG];
+void FetchStage::doClockHigh(PipeReg ** pregs) {
+    F * freg = (F *) pregs[FREG];
+    D * dreg = (D *) pregs[DREG];
 
-   freg->getpredPC()->normal();
-   dreg->getstat()->normal();
-   dreg->geticode()->normal();
-   dreg->getifun()->normal();
-   dreg->getrA()->normal();
-   dreg->getrB()->normal();
-   dreg->getvalC()->normal();
-   dreg->getvalP()->normal();
+    freg->getpredPC()->normal();
+    dreg->getstat()->normal();
+    dreg->geticode()->normal();
+    dreg->getifun()->normal();
+    dreg->getrA()->normal();
+    dreg->getrB()->normal();
+    dreg->getvalC()->normal();
+    dreg->getvalP()->normal();
 }
 
 /* setDInput
@@ -77,32 +81,32 @@ void FetchStage::doClockHigh(PipeReg ** pregs)
  * @param: rB - value to be stored in the rB pipeline register within D
  * @param: valC - value to be stored in the valC pipeline register within D
  * @param: valP - value to be stored in the valP pipeline register within D
-*/
+ */
 void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode, 
-                           uint64_t ifun, uint64_t rA, uint64_t rB,
-                           uint64_t valC, uint64_t valP)
-{
-   dreg->getstat()->setInput(stat);
-   dreg->geticode()->setInput(icode);
-   dreg->getifun()->setInput(ifun);
-   dreg->getrA()->setInput(rA);
-   dreg->getrB()->setInput(rB);
-   dreg->getvalC()->setInput(valC);
-   dreg->getvalP()->setInput(valP);
+        uint64_t ifun, uint64_t rA, uint64_t rB,
+        uint64_t valC, uint64_t valP) {
+    dreg->getstat()->setInput(stat);
+    dreg->geticode()->setInput(icode);
+    dreg->getifun()->setInput(ifun);
+    dreg->getrA()->setInput(rA);
+    dreg->getrB()->setInput(rB);
+    dreg->getvalC()->setInput(valC);
+    dreg->getvalP()->setInput(valP);
 }
 
-uint64_t selectPC(F * freg, M * mreg, W * wreg)
-{
-	if (mreg->geticode()->getOutput() == IJJX && !(mreg->getCnd()->getOutput()))
-	{
-		return mreg->getvalA()->getOutput();
-	}
-	else if (wreg->geticode()->getOutput() == IRET)
-	{
-		return wreg->getvalM()->getOutput();
-	}
+uint64_t selectPC(F * freg, M * mreg, W * wreg) {
+    if (mreg->geticode()->getOutput() == IJXX && !(mreg->getCnd()->getOutput()))
+    {
+        return mreg->getvalA()->getOutput();
+    }
+    else if (wreg->geticode()->getOutput() == IRET)
+    {
+        return wreg->getvalM()->getOutput();
+    }
 
-	return freg->getpredPC()->getOutput();
+    return freg->getpredPC()->getOutput();
 }
 
-
+bool needRegIds(uint64_t f_icode) {
+    return (f_icode && IRRMOVQ) || (f_icode && IOPQ) || (f_icode && IPUSHQ) || (f_icode && IIRMOVQ) || (f_icode && IRMMOVQ) || (f_icode && IMRMOVQ); 
+}
