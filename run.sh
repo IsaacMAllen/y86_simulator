@@ -3,7 +3,6 @@
 rm -f -r Outputs
 mkdir Outputs
 chmod g+rwx Outputs
-dir="/u/css/classes/3481/203/lab6/Tests"
 tests=( error1 error2 error3 error4 error5 error6
         error7 error8 error9 error10 error11 error12 
         error13 error14 error15 error16 nop )
@@ -13,13 +12,13 @@ numPasses=0
 
 for atest in ${tests[@]}
 do
-   infile="$dir/$atest.yo"
+   infile="$atest.yo"
    studoutfile="$atest.sdump"
-   instoutfile="$dir/$atest.idump"
+   instoutfile="./Tests/$atest.idump"
    rm -f $studoutfile
    ./yess $infile > $studoutfile
    rm -f diffs
-   diff $instoutfile $studoutfile > diffs
+   diff $instoutfile $studoutfile -b > diffs
    if [ ! -e $studoutfile ] ||  [ ! -s $studoutfile ] || [ -s diffs ]; then
       cp $instoutfile Outputs/
       cp $infile Outputs/

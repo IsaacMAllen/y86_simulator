@@ -24,19 +24,19 @@ Loader::Loader(int argc, char * argv[])
     int lineNumber = 1;
     lastAddress = -1;
     loaded = false;
-
     //if no file name given or filename badly formed, return without loading
     if (argc < 2 || badFile(argv[1])) return;  
     inf.open(argv[1]);
 
     //if file can't be opened, return without loading
-    if (!inf.is_open()) return;  
+    if (!inf.is_open()) return; 
 
     std::string line;
     while (getline(inf, line))
     {
 	if (hasErrors(line))
 	{
+        line = line.substr(0, line.size()-1);
 	    std::cout << "Error on line " << std::dec << lineNumber 
 		<< ": " << line << std::endl;
 	    return;
@@ -369,7 +369,7 @@ bool Loader::isLoaded()
  * badFile
  * returns true if the name of the file passed in is an improperly 
  * formed .yo filename. A properly formed .yo file name is at least
- * four characters in length and ends with a .yo extension.
+ * three characters in length and ends with a .yo extension.
  *
  * @return true - if the filename is improperly formed
  *         false - otherwise
@@ -384,7 +384,7 @@ bool Loader::badFile(std::string filename)
 	++length;
 	++file;
     }
-    if (*file != '.' || length < 4) {
+    if (*file != '.' || length < 3) {
 	return true;
     }
     else {

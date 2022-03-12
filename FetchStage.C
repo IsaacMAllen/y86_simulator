@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <cstdint>
 #include "RegisterFile.h"
@@ -12,7 +13,7 @@
 #include "FetchStage.h"
 #include "Status.h"
 #include "Debug.h"
-
+#include "Memory.h"
 
 uint64_t selectPC(F * freg, M * mreg, W * wreg);
 bool needRegIds(uint64_t f_icode);
@@ -43,11 +44,15 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //rA, rB, and valC to be set.
     //The lab assignment describes what methods need to be
     //written.
-    
-    valP = PCincrement(selectPC(freg, mreg, wreg), needRegIds(icode), needValC(icode));
+    uint64_t pc = selectPC(freg, mreg, wreg);
+    valP = PCincrement(pc, needRegIds(icode), needValC(icode));
     //The value passed to setInput below will need to be changed
     freg->getpredPC()->setInput(predictPC(icode, valC, valP));
-
+    Memory * mem = Memory::getInstance();
+    bool error = true;
+    uint8_t icodeifun = mem -> getByte((int) pc, error);
+    icode = icodeifun >> 4;
+    ifun = icodeifun & 0x01;
     //provide the input values for the D register
     setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
     return false;
