@@ -12,6 +12,10 @@
 #include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
+#include "Instructions.h"
+
+uint64_t getSrcA(D * dreg);
+
 /*
  * doClockLow:
  * Performs the Decode stage combinational logic that is performed when
@@ -29,7 +33,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     uint64_t valB = 0; 
     uint64_t dstE = RNONE;
     uint64_t dstM = RNONE;
-    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, dreg -> getrA() -> getOutput(), dreg -> getrB() -> getOutput()); 
+    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), dreg -> getrB() -> getOutput()); 
     return false;
 }
 
@@ -69,5 +73,23 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode, uint64_t if
     ereg -> getdstM()->setInput(dstM);
     ereg -> getsrcA()->setInput(srcA);
     ereg -> getsrcB()->setInput(srcB);
+
+}
+
+uint64_t getSrcA(D * dreg) {
+	
+	uint64_t d_icode = dreg->geticode()->getOutput();
+
+	if (d_icode == IRRMOVQ || d_icode == IRMMOVQ || d_icode == IOPQ 	
+	    || d_icode == IPUSHQ) {
+	    return dreg->getrA()->getOutput();
+	}
+	
+	if (d_icode == IPOPQ || d_icode == IRET) {
+	    return RSP;
+	}
+
+	return RNONE;
+
 
 }
