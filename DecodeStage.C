@@ -15,6 +15,7 @@
 #include "Instructions.h"
 
 uint64_t getSrcA(D * dreg);
+uint64_t getSrcB(D * dreg); 
 
 /*
  * doClockLow:
@@ -33,7 +34,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     uint64_t valB = 0; 
     uint64_t dstE = RNONE;
     uint64_t dstM = RNONE;
-    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), dreg -> getrB() -> getOutput()); 
+    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), getSrcB(dreg)); 
     return false;
 }
 
@@ -92,4 +93,19 @@ uint64_t getSrcA(D * dreg) {
 	return RNONE;
 
 
+}
+
+uint64_t getSrcB(D * dreg) {
+ 
+    uint64_t d_icode = dreg->geticode()->getOutput();
+
+    if (d_icode == IOPQ || d_icode == IRMMOVQ || d_icode == IMRMOVQ) {
+	return dreg->getrB()->getOutput();
+    }
+
+    if (d_icode == IPUSHQ || d_icode == IPOPQ || d_icode == ICALL || d_icode == IRET) {
+	return RSP;
+    }
+
+    return RNONE;
 }
