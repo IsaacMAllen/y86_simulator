@@ -20,7 +20,8 @@ bool needRegIds(uint64_t f_icode);
 bool needValC(uint64_t f_icode);
 uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
 uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
-
+void getRegIds(uint64_t pc, bool error, uint64_t & rA, uint64_t & rB, uint64_t icode);
+ 
 /*
  * doClockLow:
  * Performs the Fetch stage combinational logic that is performed when
@@ -53,6 +54,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     uint8_t icodeifun = mem -> getByte((int) pc, error);
     icode = icodeifun >> 4;
     ifun = icodeifun & 0x01;
+    getRegIds(pc,error,rA,rB,icode);
     //provide the input values for the D register
     setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
     return false;
@@ -141,3 +143,19 @@ uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC) {
     }
     return f_pc;
 }
+
+void getRegIds(uint64_t pc, bool error, uint64_t & rA, uint64_t & rB, uint64_t icode) {
+	
+	Memory * mem = Memory::getInstance();
+
+	if (needRegIds(icode) == true) {
+	    uint8_t reg = mem->getByte(pc + 1, error);
+	    uint8_t rAmask = 0xF0;
+	    uint8_t rBmask = 0x0F;
+	    rA = rAmask & reg;
+	    rB = rBmask & reg;    	    
+	}
+}
+
+
+
