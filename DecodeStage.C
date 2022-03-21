@@ -16,6 +16,8 @@
 
 uint64_t getSrcA(D * dreg);
 uint64_t getSrcB(D * dreg); 
+uint64_t getDstE(D * dreg); 
+uint64_t getDstM(D * dreg); 
 
 /*
  * doClockLow:
@@ -32,8 +34,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     E * ereg = (E *) pregs[EREG];
     uint64_t valA = 0;
     uint64_t valB = 0; 
-    uint64_t dstE = RNONE;
-    uint64_t dstM = RNONE;
+    uint64_t dstE = getDstE(dreg);
+    uint64_t dstM = getDstM(dreg);
     setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), getSrcB(dreg)); 
     return false;
 }
@@ -105,6 +107,32 @@ uint64_t getSrcB(D * dreg) {
 
     if (d_icode == IPUSHQ || d_icode == IPOPQ || d_icode == ICALL || d_icode == IRET) {
 	return RSP;
+    }
+
+    return RNONE;
+}
+
+uint64_t getDstE(D * dreg) {
+    
+    uint64_t d_icode = dreg->geticode()->getOutput();
+    
+    if (d_icode == IRRMOVQ || d_icode == IRMMOVQ || d_icode == IOPQ) {
+	    return dreg->getrB()->getOutput();
+    }
+
+    if (d_icode == IPUSHQ || d_icode == IPOPQ || d_icode == ICALL || d_icode == IRET) {
+	return RSP;
+    }
+
+    return RNONE;
+}
+
+uint64_t getDstM(D * dreg) {
+    
+    uint64_t d_icode = dreg->geticode()->getOutput();
+    
+    if (d_icode == IMRMOVQ || d_icode == IOPQ) {
+	    return dreg->getrA()->getOutput();
     }
 
     return RNONE;
