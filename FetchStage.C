@@ -48,18 +48,18 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //The lab assignment describes what methods need to be
     //written.
     uint64_t pc = selectPC(freg, mreg, wreg);
-    valP = PCincrement(pc, needRegIds(icode), needValC(icode));
-    //The value passed to setInput below will need to be changed
-    freg->getpredPC()->setInput(predictPC(icode, valC, valP));
-    Memory * mem = Memory::getInstance();
     bool error = true;
+    Memory * mem = Memory::getInstance();
     uint8_t icodeifun = mem -> getByte((int) pc, error);
     icode = icodeifun >> 4;
-    ifun = icodeifun & 0x01;
-    getRegIds(pc,error,rA,rB,icode);    
+    ifun = icodeifun & 0x0F;
     valC = buildValC(pc, icode, error);
+    //The value passed to setInput below will need to be changed
+    freg->getpredPC()->setInput(predictPC(icode, valC, valP));
+    getRegIds(pc,error,rA,rB,icode);    
+    valP = PCincrement(pc, needRegIds(icode), needValC(icode));
     //provide the input values for the D register
-    setDInput(dreg, stat, icode, ifun, rA, rB, valC, valP);
+    setDInput(dreg, stat, icode, ifun, rA, rB, valC, ValP);
     return false;
 }
 
@@ -160,17 +160,18 @@ void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t
     }
 }
 
-uint64_t buildValC(uint64_t pc, uint64_t icode, bool & error) {
+uint64_t buildValC(uint64_t startOfValC, uint64_t icode, bool & error) {
     if (needValC(icode)) {
     switch (icode) {
 	case IJXX:
-	    pc++;
+	    // Refactor her
+	    Tools::getByte;
 	    break;
 	case ICALL:
-	    pc++;
+	    startOfValC++;
 	    break;
 	default:
-	    pc += 3;
+	    startOfValC += 3;
 	    break;
     }
     Memory * mem = Memory::getInstance();
