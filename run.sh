@@ -3,18 +3,19 @@
 rm -f -r Outputs
 mkdir Outputs
 chmod g+rwx Outputs
+dir="/u/classes/3481/Spring2022/lab7/Tests"
 tests=( error1 error2 error3 error4 error5 error6
         error7 error8 error9 error10 error11 error12 
-        error13 error14 error15 error16 nop )
+        error13 error14 error15 error16 nop irmovq )
 
 numTests=0
 numPasses=0
 
 for atest in ${tests[@]}
 do
-   infile="$atest.yo"
+   infile="$dir/$atest.yo"
    studoutfile="$atest.sdump"
-   instoutfile="./Tests/$atest.idump"
+   instoutfile="$dir/$atest.idump"
    rm -f $studoutfile
    ./yess $infile > $studoutfile
    rm -f diffs
