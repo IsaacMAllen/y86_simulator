@@ -18,6 +18,9 @@ uint64_t getSrcA(D * dreg);
 uint64_t getSrcB(D * dreg); 
 uint64_t getDstE(D * dreg); 
 uint64_t getDstM(D * dreg); 
+uint64_t getValA(D *dreg, bool & error);
+uint64_t getValB(D * dreg, bool & error);
+
 
 /*
  * doClockLow:
@@ -32,8 +35,9 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     D * dreg = (D *) pregs[DREG];
     E * ereg = (E *) pregs[EREG];
-    uint64_t valA = 0;
-    uint64_t valB = 0; 
+    bool error = true;
+    uint64_t valA = getValA(dreg,error);
+    uint64_t valB = getValB(dreg,error); 
     uint64_t dstE = getDstE(dreg);
     uint64_t dstM = getDstM(dreg);
     setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), getSrcB(dreg)); 
@@ -137,3 +141,21 @@ uint64_t getDstM(D * dreg) {
 
     return RNONE;
 }
+
+uint64_t getValA(D * dreg, bool & error) {
+    
+    RegisterFile * reggie = RegisterFile::getInstance();
+
+    return reggie->readRegister((int32_t)dreg->getrA()->getOutput(), error);
+}
+
+uint64_t getValB(D * dreg, bool & error) {
+
+    RegisterFile * reggie = RegisterFile::getInstance();
+    return reggie->readRegister((int32_t)dreg->getrB()->getOutput(), error);
+
+
+}
+
+
+
