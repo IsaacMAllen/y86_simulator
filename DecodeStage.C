@@ -120,7 +120,7 @@ uint64_t getDstE(D * dreg) {
     
     uint64_t d_icode = dreg->geticode()->getOutput();
     
-    if (d_icode == IRRMOVQ || d_icode == IRMMOVQ || d_icode == IOPQ) {
+    if (d_icode == IRRMOVQ || d_icode == IIRMOVQ || d_icode == IOPQ) {
 	    return dreg->getrB()->getOutput();
     }
 
