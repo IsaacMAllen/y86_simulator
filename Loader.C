@@ -36,7 +36,7 @@ Loader::Loader(int argc, char * argv[])
     {
 	if (hasErrors(line))
 	{
-        line = line.substr(0, line.size()-1);
+        line = line.substr(0, line.size());
 	    std::cout << "Error on line " << std::dec << lineNumber 
 		<< ": " << line << std::endl;
 	    return;

@@ -21,8 +21,8 @@ bool needRegIds(uint64_t f_icode);
 bool needValC(uint64_t f_icode);
 uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
 uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
-void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t icode);
-uint64_t buildValC(uint64_t pc, uint64_t icode, bool & error); 
+void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t f_icode);
+uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error); 
 
 /*
  * doClockLow:
@@ -38,28 +38,28 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     D * dreg = (D *) pregs[DREG];
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
-    uint64_t icode = 0, ifun = 0, valC = 0, valP = 0;
+    uint64_t f_icode = 0, f_ifun = 0, valC = 0, valP = 0;
     uint64_t rA = RNONE, rB = RNONE, stat = SAOK;
-
+    
     //code missing here to select the value of the PC
     //and fetch the instruction from memory
     //Fetching the instruction will allow the icode, ifun,
     //rA, rB, and valC to be set.
     //The lab assignment describes what methods need to be
     //written.
-    uint64_t pc = selectPC(freg, mreg, wreg);
+    uint64_t f_pc = selectPC(freg, mreg, wreg);
     bool error = true;
     Memory * mem = Memory::getInstance();
-    uint8_t icodeifun = mem -> getByte((int) pc, error);
-    icode = icodeifun >> 4;
-    ifun = icodeifun & 0x0F;
-    valC = buildValC(pc, icode, error);
+    uint8_t icodeifun = mem -> getByte((int) f_pc, error);
+    f_icode = icodeifun >> 4;
+    f_ifun = icodeifun & 0x0F;
+    valC = buildValC(f_pc, f_icode, error);
     //The value passed to setInput below will need to be changed
-    freg->getpredPC()->setInput(predictPC(icode, valC, valP));
-    getRegIds(pc,error,rA,rB,icode);    
-    valP = PCincrement(pc, needRegIds(icode), needValC(icode));
+    getRegIds(f_pc,error,rA,rB,f_icode);    
+    valP = PCincrement(f_pc, needRegIds(f_icode), needValC(f_icode));
+    freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
-    setDInput(dreg, stat, icode, ifun, rA, rB, valC, ValP);
+    setDInput(dreg, stat, f_icode, f_ifun, rA, rB, valC, valP);
     return false;
 }
 
@@ -96,11 +96,11 @@ void FetchStage::doClockHigh(PipeReg ** pregs) {
  * @param: valC - value to be stored in the valC pipeline register within D
  * @param: valP - value to be stored in the valP pipeline register within D
  */
-void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t icode, 
-	uint64_t ifun, uint64_t rA, uint64_t rB, uint64_t valC, uint64_t valP) {
+void FetchStage::setDInput(D * dreg, uint64_t stat, uint64_t f_icode, 
+	uint64_t f_ifun, uint64_t rA, uint64_t rB, uint64_t valC, uint64_t valP) {
     dreg->getstat()->setInput(stat);
-    dreg->geticode()->setInput(icode);
-    dreg->getifun()->setInput(ifun);
+    dreg->geticode()->setInput(f_icode);
+    dreg->getifun()->setInput(f_ifun);
     dreg->getrA()->setInput(rA);
     dreg->getrB()->setInput(rB);
     dreg->getvalC()->setInput(valC);
@@ -116,12 +116,11 @@ uint64_t selectPC(F * freg, M * mreg, W * wreg) {
     {
 	return wreg->getvalM()->getOutput();
     }
-
     return freg->getpredPC()->getOutput();
 }
 
 bool needRegIds(uint64_t f_icode) {
-    return (f_icode == IRRMOVQ) || (f_icode == IOPQ) || (f_icode == IPUSHQ) || (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ); 
+    return (f_icode == IRRMOVQ) || (f_icode == IOPQ) || (f_icode == IPUSHQ) || (f_icode == IPOPQ) || (f_icode == IIRMOVQ) || (f_icode == IRMMOVQ) || (f_icode == IMRMOVQ); 
 }
 
 bool needValC(uint64_t f_icode) {
@@ -136,10 +135,10 @@ uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP) {
 
 uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC) {
     if (needValC) {
-	f_pc += 11;
+	f_pc += 10;
     }
     else if (needRegIds && !needValC) {
-	f_pc += 3;
+	f_pc += 2;
     }
     else {
 	f_pc += 1;
@@ -153,32 +152,42 @@ void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t
 
     if (needRegIds(icode)) {
 	uint8_t reg = mem->getByte(pc + 1, error);
-	uint8_t rAmask = 0xF0;
 	uint8_t rBmask = 0x0F;
-	rA = rAmask & reg;
+	rA = reg >> 4;
 	rB = rBmask & reg;    	    
     }
 }
 
-uint64_t buildValC(uint64_t startOfValC, uint64_t icode, bool & error) {
+uint64_t buildValC(uint64_t instruction, uint64_t icode, bool & error) {
+    Memory * mem = Memory::getInstance();
+    uint8_t valCArray[8];
+    uint32_t valC = 0;
+    int start = 0;
+    int n = 0;
+    int offset = 0;
     if (needValC(icode)) {
     switch (icode) {
 	case IJXX:
-	    // Refactor her
-	    Tools::getByte;
-	    break;
 	case ICALL:
-	    startOfValC++;
+	    start = 1;
+	    offset = -1;
+	    n = 9;
 	    break;
 	default:
-	    startOfValC += 3;
+	    start = 2;
+	    n = 10;
+	    offset = -2;
 	    break;
     }
-    Memory * mem = Memory::getInstance();
-    return mem->getLong(pc, error); 
+    for (; start < n; ++start) {
+	valCArray[start + offset] = mem->getByte((int32_t) instruction + start, error);
+    }
+	error = false;
+	valC = Tools::buildLong(valCArray);
+	return valC;
     }
     error = true;
-    return 0;
+    return valC;
 }
 
 
