@@ -65,7 +65,7 @@ void Simulate::run()
    ConditionCodes * cc = ConditionCodes::getInstance();
    RegisterFile * rf = RegisterFile::getInstance();
    bool stop = false;
-   while (!stop /*&& cycle != 5*/)
+   while (!stop)
    {
       stop = doClockLow();
       doClockHigh();
