@@ -38,10 +38,10 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
     uint64_t cnd = 0;
-    if (setcc(icode)){
-	performOp(icode, getAluA(ereg, icode), getAluB(ereg, icode), cnd, error);	
-    }
     uint64_t valE = ereg->getvalC()->getOutput();
+    if (setcc(icode)){
+	valE = performOp(icode, getAluA(ereg, icode), getAluB(ereg, icode), cnd, error);	
+    }
 
     setMInput(mreg, ereg -> getstat() -> getOutput(), ereg -> geticode() -> getOutput(), cnd, valE, ereg -> getvalA() -> getOutput(), ereg -> getdstE() -> getOutput(), ereg -> getdstM() -> getOutput());
 
