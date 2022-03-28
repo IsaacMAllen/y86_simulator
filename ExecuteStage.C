@@ -83,11 +83,12 @@ uint64_t getAluB(E * ereg, uint64_t E_icode) {
     return 0;
 }
 
+// Returns e_icode
 uint64_t getAluFun(E * ereg, uint64_t E_icode) {
     if (E_icode == IOPQ) return ereg->getifun()->getOutput();
     return ADDQ;
 }
-
+// If True CC will be used to set the Condition Codes
 bool setcc(uint64_t E_icode) {
     return E_icode == IOPQ;
 }
@@ -96,4 +97,26 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
     if(E_icode == IRRMOVQ && !e_Cnd) return RNONE;
     return ereg->getdstE()->getOutput();
 
+}
+uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB) {
+    uint64_t result = 0;
+    switch(e_icode) {
+	case ADDQ:
+	    result = val_rA + val_rB;
+	    // TODO: Logic for CC setting
+	    break;
+	case SUBQ:
+	    result = val_rA - val_rB;
+	    // TODO: Logic for CC setting
+	    break;
+	case XORQ:
+	    result = val_rA ^ val_rB;
+	    // TODO: Logic for CC setting
+	    break;
+	case ANDQ:
+	    result = val_rA & val_rB;
+	    // TODO: Logic for CC setting
+	    break;
+    }
+    return result;
 }
