@@ -9,7 +9,7 @@
 #include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
-
+#include "Instructions.h"
 
 /*
  * doClockLow:
@@ -66,5 +66,14 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t c
 	mreg->getdstM()->setInput(dstM);
 	
 
+
+}
+
+uint64_t getAluA(E * ereg, uint64_t E_icode) {
+    if(E_icode == IRRMOVQ || E_icode == IOPQ) return ereg->getvalA()->getOutput();
+    if(E_icode == IIRMOVQ || E_icode == IRMMOVQ || E_icode == IMRMOVQ) return ereg->getvalC()->getOutput();
+    if(E_icode == ICALL || E_icode == IPUSHQ) return -8;
+    if(E_icode == IRET || E_icode == IPOPQ) return 8;
+    return 0;
 
 }
