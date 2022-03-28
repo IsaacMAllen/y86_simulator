@@ -77,3 +77,8 @@ uint64_t getAluA(E * ereg, uint64_t E_icode) {
     return 0;
 
 }
+
+uint64_t getAluB(E * ereg, uint64_t E_icode) {
+    if(E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL || E_icode == IPUSHQ || E_icode == IRET || E_icode == IPOPQ) return ereg->getValB()->getOutput();
+    return 0;
+}
