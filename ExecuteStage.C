@@ -11,6 +11,8 @@
 #include "Debug.h"
 #include "Instructions.h"
 #include "ConditionCodes.h"
+#include "Tools.h"
+
 /*
  * doClockLow:
  * Performs the Execute stage combinational logic that is performed when
@@ -19,11 +21,26 @@
  * @param: pregs - array of the pipeline register sets (F, D, E, M, W instances)
  * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
  *         MemoryStage, WritebackStage instances)
- */
+*/
+
+uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error);
+bool setcc(uint64_t E_icode);
+uint64_t getAluFun(E * ereg, uint64_t E_icode);
+uint64_t getAluA(E * ereg, uint64_t E_icode);
+uint64_t getAluB(E * ereg, uint64_t E_icode);
+
+
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     E * ereg = (E *) pregs[EREG];
     M * mreg = (M *) pregs[MREG];
+    
+    bool error = false;
+    uint64_t icode = ereg->geticode()->getOutput();
+
+    if (setcc(icode)){
+	performOp(icode, getAluA(ereg, icode), getAluB(ereg, icode),error);	
+    }
 
     uint64_t cnd = 0;
     uint64_t valE = ereg->getvalC()->getOutput();
@@ -99,14 +116,15 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
 
 }
 
-uint64_t performOp(uint64_t e_icode, int64_t val_rA, int64_t val_rB, bool & error) {
+uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error) {
     ConditionCodes * CC = ConditionCodes::getInstance();
     uint64_t result = 0;
     switch(e_icode) {
 	case ADDQ:
 	    result = val_rA + val_rB;
 	    // TODO: Logic for CC setting
-	    if(((val_rA >= 0 && val_rB >= 0) || (val_rA < 0 && val_rB < 0)) && ((result < 0 && val_rA >= 0) || (result >= 0 && val_rA < 0))){
+	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 0) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 1)) &&
+		    ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
 		CC->setConditionCode(true,OF,error);
 	    }
 	    else {
@@ -116,7 +134,8 @@ uint64_t performOp(uint64_t e_icode, int64_t val_rA, int64_t val_rB, bool & erro
 	case SUBQ:
 	    result = val_rA - val_rB;
 	    // TODO: Logic for CC setting
-	    if(((val_rA >= 0 && val_rB < 0) || (val_rA < 0 && val_rB >= 0)) && ((result < 0 && val_rA >= 0) || (result >= 0 && val_rA < 0))){
+	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 1) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 0)) 
+		    && ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
 		CC->setConditionCode(true,OF,error);
 	    }
 	    else {
@@ -142,7 +161,7 @@ uint64_t performOp(uint64_t e_icode, int64_t val_rA, int64_t val_rB, bool & erro
 	CC->setConditionCode(false,ZF,error);	
     }
 
-    if(result < 0) {
+    if(Tools::sign(result) == 1) {
 	CC->setConditionCode(true,SF,error);
     }
     else {
