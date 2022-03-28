@@ -87,3 +87,13 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode) {
     if (E_icode == IOPQ) return ereg->getifun()->getOutput();
     return ADDQ;
 }
+
+bool setcc(uint64_t E_icode) {
+    return E_icode == IOPQ;
+}
+
+uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
+    if(E_icode == IRRMOVQ && !e_Cnd) return RNONE;
+    return ereg->getdstE()->getOutput();
+
+}
