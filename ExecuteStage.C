@@ -10,7 +10,7 @@
 #include "Status.h"
 #include "Debug.h"
 #include "Instructions.h"
-
+#include "ConditionCodes.h"
 /*
  * doClockLow:
  * Performs the Execute stage combinational logic that is performed when
@@ -100,47 +100,53 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
 }
 
 uint64_t performOp(uint64_t e_icode, int64_t val_rA, int64_t val_rB, bool & error) {
+    ConditionCodes * CC = ConditionCodes::getInstance();
     uint64_t result = 0;
     switch(e_icode) {
 	case ADDQ:
 	    result = val_rA + val_rB;
 	    // TODO: Logic for CC setting
-	    if((val_rA >= 0 && val_rB >= 0 || val_rA < 0 && val_rB < 0) && (result < 0 && val_rA >= 0 || result >= 0 && val_rA < 0)){
-		ConditionCodes::setConditionCodes(1,OF,error);
+	    if(((val_rA >= 0 && val_rB >= 0) || (val_rA < 0 && val_rB < 0)) && ((result < 0 && val_rA >= 0) || (result >= 0 && val_rA < 0))){
+		CC->setConditionCode(true,OF,error);
 	    }
 	    else {
-		ConditionCodes::setConditionCodes(0,OF,error);
+		CC->setConditionCode(false,OF,error);
 	    }
 	    break;
 	case SUBQ:
 	    result = val_rA - val_rB;
 	    // TODO: Logic for CC setting
+	    if(((val_rA >= 0 && val_rB < 0) || (val_rA < 0 && val_rB >= 0)) && ((result < 0 && val_rA >= 0) || (result >= 0 && val_rA < 0))){
+		CC->setConditionCode(true,OF,error);
+	    }
+	    else {
+		CC->setConditionCode(false,OF,error);
+	    }
 	    break;
 	case XORQ:
 	    result = val_rA ^ val_rB;
 	    // TODO: Logic for CC setting
+	    CC->setConditionCode(false,OF,error);
 	    break;
 	case ANDQ:
 	    result = val_rA & val_rB;
 	    // TODO: Logic for CC setting
+	    CC->setConditionCode(false,OF,error);
 	    break;
     }
 
     if(result == 0) {
-	ConditionCodes::setConditionCodes(1,ZF,error);
+	CC->setConditionCode(true,ZF,error);
     }
     else {
-	ConditionCodes::setConditionCodes(0,ZF,error);	
+	CC->setConditionCode(false,ZF,error);	
     }
 
     if(result < 0) {
-	ConditionCodes::setConditionCodes(1,SF,error);
+	CC->setConditionCode(true,SF,error);
     }
     else {
-	ConditionCodes::setConditionCodes(0,SF,error);
+	CC->setConditionCode(false,SF,error);
     }
-
-    
-
     return result;
 }
