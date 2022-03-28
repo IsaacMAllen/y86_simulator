@@ -23,7 +23,7 @@
  *         MemoryStage, WritebackStage instances)
 */
 
-uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error);
+uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, uint64_t & cnd, bool & error);
 bool setcc(uint64_t E_icode);
 uint64_t getAluFun(E * ereg, uint64_t E_icode);
 uint64_t getAluA(E * ereg, uint64_t E_icode);
@@ -37,12 +37,10 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
-
-    if (setcc(icode)){
-	performOp(icode, getAluA(ereg, icode), getAluB(ereg, icode),error);	
-    }
-
     uint64_t cnd = 0;
+    if (setcc(icode)){
+	performOp(icode, getAluA(ereg, icode), getAluB(ereg, icode), cnd, error);	
+    }
     uint64_t valE = ereg->getvalC()->getOutput();
 
     setMInput(mreg, ereg -> getstat() -> getOutput(), ereg -> geticode() -> getOutput(), cnd, valE, ereg -> getvalA() -> getOutput(), ereg -> getdstE() -> getOutput(), ereg -> getdstM() -> getOutput());
@@ -116,7 +114,7 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
 
 }
 
-uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error) {
+uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, uint64_t & cnd, bool & error) {
     ConditionCodes * CC = ConditionCodes::getInstance();
     uint64_t result = 0;
     switch(e_icode) {
@@ -126,9 +124,11 @@ uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & er
 	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 0) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 1)) &&
 		    ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
 		CC->setConditionCode(true,OF,error);
+		cnd = Tools::setBits(cnd, OF, OF);
 	    }
 	    else {
 		CC->setConditionCode(false,OF,error);
+		cnd = Tools::clearBits(cnd, OF, OF);
 	    }
 	    break;
 	case SUBQ:
@@ -137,35 +137,43 @@ uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & er
 	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 1) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 0)) 
 		    && ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
 		CC->setConditionCode(true,OF,error);
+		cnd = Tools::setBits(cnd, OF, OF);
 	    }
 	    else {
 		CC->setConditionCode(false,OF,error);
+		cnd = Tools::clearBits(cnd, OF, OF);
 	    }
 	    break;
 	case XORQ:
 	    result = val_rA ^ val_rB;
 	    // TODO: Logic for CC setting
 	    CC->setConditionCode(false,OF,error);
+	    cnd = Tools::clearBits(cnd, OF, OF);
 	    break;
 	case ANDQ:
 	    result = val_rA & val_rB;
 	    // TODO: Logic for CC setting
 	    CC->setConditionCode(false,OF,error);
+	    cnd = Tools::clearBits(cnd, OF, OF);
 	    break;
     }
 
     if(result == 0) {
 	CC->setConditionCode(true,ZF,error);
+	cnd = Tools::setBits(cnd, ZF, ZF);
     }
     else {
 	CC->setConditionCode(false,ZF,error);	
+	cnd = Tools::clearBits(cnd, ZF, ZF);
     }
 
     if(Tools::sign(result) == 1) {
 	CC->setConditionCode(true,SF,error);
+	cnd = Tools::setBits(cnd, SF, SF);
     }
     else {
 	CC->setConditionCode(false,SF,error);
+	cnd = Tools::clearBits(cnd, SF, SF);
     }
     return result;
 }
