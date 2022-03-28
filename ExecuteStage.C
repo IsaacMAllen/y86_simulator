@@ -98,12 +98,19 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
     return ereg->getdstE()->getOutput();
 
 }
-uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB) {
+
+uint64_t performOp(uint64_t e_icode, int64_t val_rA, int64_t val_rB, bool & error) {
     uint64_t result = 0;
     switch(e_icode) {
 	case ADDQ:
 	    result = val_rA + val_rB;
 	    // TODO: Logic for CC setting
+	    if((val_rA >= 0 && val_rB >= 0 || val_rA < 0 && val_rB < 0) && (result < 0 && val_rA >= 0 || result >= 0 && val_rA < 0)){
+		ConditionCodes::setConditionCodes(1,OF,error);
+	    }
+	    else {
+		ConditionCodes::setConditionCodes(0,OF,error);
+	    }
 	    break;
 	case SUBQ:
 	    result = val_rA - val_rB;
@@ -118,5 +125,22 @@ uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB) {
 	    // TODO: Logic for CC setting
 	    break;
     }
+
+    if(result == 0) {
+	ConditionCodes::setConditionCodes(1,ZF,error);
+    }
+    else {
+	ConditionCodes::setConditionCodes(0,ZF,error);	
+    }
+
+    if(result < 0) {
+	ConditionCodes::setConditionCodes(1,SF,error);
+    }
+    else {
+	ConditionCodes::setConditionCodes(0,SF,error);
+    }
+
+    
+
     return result;
 }
