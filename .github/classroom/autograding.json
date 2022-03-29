@@ -1,13 +1,23 @@
 {
   "tests": [
     {
-      "name": "make run",
+      "name": "make student.output",
       "setup": "make",
-      "run": "make run",
+      "run": "./lab4 > student.output",
       "input": "",
       "output": "",
       "comparison": "included",
       "timeout": 2,
+      "points": null
+    },
+    {
+      "name": "compare against instructor.output",
+      "setup": "",
+      "run": "diff -w student.output instructor.output > NOTPERFECT.grade",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 1,
       "points": null
     }
   ]
