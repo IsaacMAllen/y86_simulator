@@ -22,6 +22,7 @@ uint64_t getDstM(D * dreg);
 uint64_t getValA(D *dreg, bool & error);
 uint64_t getValB(D * dreg, bool & error);
 uint64_t dvalA(D * dreg, PipeReg ** pregs);
+uint64_t dvalB(D * dreg, PipeReg ** pregs);
 
 /*
  * doClockLow:
@@ -36,9 +37,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     D * dreg = (D *) pregs[DREG];
     E * ereg = (E *) pregs[EREG];
-    bool error = true;
-    uint64_t valA = getValA(dreg,error);
-    uint64_t valB = getValB(dreg,error); 
+    uint64_t valA = dvalA(dreg,pregs);
+    uint64_t valB = dvalB(dreg,pregs); 
     uint64_t dstE = getDstE(dreg);
     uint64_t dstM = getDstM(dreg);
     setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), getSrcB(dreg)); 
@@ -169,4 +169,34 @@ uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     return getValA(dreg,error);
 
 }
+
+uint64_t dvalB(D * dreg, PipeReg ** pregs) {
+    M * mreg = (M *) pregs[MREG];
+    W * wreg = (W *) pregs[WREG];
+
+    uint64_t d_srcB = getSrcB(dreg);
+    bool error = false;
+    if(d_srcB == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
+    if(d_srcB == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
+    if(d_srcB == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
+    return getValB(dreg,error);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
