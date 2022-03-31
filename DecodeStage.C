@@ -23,7 +23,6 @@ uint64_t getValA(D *dreg, bool & error);
 uint64_t getValB(D * dreg, bool & error);
 uint64_t dvalA(D * dreg, PipeReg ** pregs);
 
-
 /*
  * doClockLow:
  * Performs the Decode stage combinational logic that is performed when
@@ -164,8 +163,7 @@ uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     W * wreg = (W *) pregs[WREG];
     uint64_t d_srcA = getSrcA(dreg);
     bool error = false;
-    ExecuteStage * exe = new ExecuteStage; 
-    if(d_srcA == exe->gete_dstE()) return exe->gete_valE();
+    if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
     if(d_srcA == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
     if(d_srcA == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
     return getValA(dreg,error);
