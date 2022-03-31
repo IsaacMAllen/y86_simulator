@@ -13,6 +13,7 @@
 #include "Status.h"
 #include "Debug.h"
 #include "Instructions.h"
+#include "ExecuteStage.h"
 
 uint64_t getSrcA(D * dreg);
 uint64_t getSrcB(D * dreg); 
@@ -20,6 +21,7 @@ uint64_t getDstE(D * dreg);
 uint64_t getDstM(D * dreg); 
 uint64_t getValA(D *dreg, bool & error);
 uint64_t getValB(D * dreg, bool & error);
+uint64_t dvalA(D * dreg, PipeReg ** pregs);
 
 
 /*
@@ -157,5 +159,16 @@ uint64_t getValB(D * dreg, bool & error) {
 
 }
 
+uint64_t dvalA(D * dreg, PipeReg ** pregs) {
+    M * mreg = (M *) pregs[MREG];
+    W * wreg = (W *) pregs[WREG];
+    uint64_t d_srcA = getSrcA(dreg);
+    bool error = false;
+    ExecuteStage * exe = new ExecuteStage; 
+    if(d_srcA == exe->gete_dstE()) return exe->gete_valE();
+    if(d_srcA == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
+    if(d_srcA == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
+    return getValA(dreg,error);
 
+}
 

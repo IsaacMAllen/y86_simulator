@@ -29,6 +29,8 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode);
 uint64_t getAluA(E * ereg, uint64_t E_icode);
 uint64_t getAluB(E * ereg, uint64_t E_icode);
 
+static uint64_t valE;
+uint64_t dstE;
 
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
@@ -38,7 +40,8 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
     uint64_t cnd = 0;
-    uint64_t valE = ereg->getvalC()->getOutput();
+    valE = ereg->getvalC()->getOutput();
+    dstE = ereg->getdstE()->getOutput();
     if (setcc(icode)){
 	valE = performOp(ereg->getifun()->getOutput(), getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
@@ -178,3 +181,12 @@ uint64_t performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & err
     }
     return result;
 }
+
+uint64_t gete_valE(){
+    return valE;
+}
+
+uint64_t gete_dstE(){
+    return dstE;
+}
+

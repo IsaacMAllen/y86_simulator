@@ -30,7 +30,7 @@ PipeRegField.o: PipeRegField.h
 
 WritebackStage.o: RegisterFile.h PipeRegField.h PipeReg.h Stage.h WritebackStage.h Status.h Debug.h W.h
 
-DecodeStage.o: PipeReg.h PipeRegField.h D.h F.h M.h W.h E.h Stage.h Status.h Debug.h DecodeStage.h 
+DecodeStage.o: ExecuteStage.h PipeReg.h PipeRegField.h D.h F.h M.h W.h E.h Stage.h Status.h Debug.h DecodeStage.h 
 
 ExecuteStage.o: Tools.h Instructions.h ConditionCodes.h RegisterFile.h PipeRegField.h PipeReg.h M.h E.h Stage.h ExecuteStage.h Status.h Debug.h
 
