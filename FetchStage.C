@@ -161,7 +161,7 @@ void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t
 uint64_t buildValC(uint64_t instruction, uint64_t icode, bool & error) {
     Memory * mem = Memory::getInstance();
     uint8_t valCArray[8];
-    uint32_t valC = 0;
+    uint64_t valC = 0;
     int start = 0;
     int n = 0;
     int offset = 0;

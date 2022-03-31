@@ -135,7 +135,7 @@ uint64_t getDstM(D * dreg) {
     
     uint64_t d_icode = dreg->geticode()->getOutput();
     
-    if (d_icode == IMRMOVQ || d_icode == IOPQ) {
+    if (d_icode == IMRMOVQ || d_icode == IPOPQ) {
 	    return dreg->getrA()->getOutput();
     }
 
