@@ -133,10 +133,10 @@ uint64_t performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & err
 	    }
 	    break;
 	case SUBQ:
-	    result = val_rA - val_rB;
+	    result = val_rB - val_rA;
 	    // TODO: Logic for CC setting
 	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 1) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 0)) 
-		    && ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
+		    && ((Tools::sign(result) == 1 && Tools::sign(val_rB) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rB) == 1))){
 		CC->setConditionCode(true,OF,error);
 		//cnd = Tools::setBits(cnd, OF, OF);
 	    }
