@@ -206,7 +206,18 @@ bool cond(uint64_t icode, uint64_t ifun) {
     if((icode == IJXX && ifun == LESS) || (icode == ICMOVXX && ifun == LESS)) {
 	return (codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error));
     }   
-
-    return false;
+    if((icode == IJXX && ifun == EQUAL) || (icode == ICMOVXX && ifun == EQUAL)) {
+	return codes->getConditionCode(ZF, error);
+    }   
+    if((icode == IJXX && ifun == NOTEQUAL) || (icode == ICMOVXX && ifun == NOTEQUAL)) {
+	return !codes->getConditionCode(ZF, error);
+    }   
+    if((icode == IJXX && ifun == GREATER) || (icode == ICMOVXX && ifun == GREATER)) {
+	return !(codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error)) && !codes->getConditionCode(ZF, error);
+    }   
+    if((icode == IJXX && ifun == GREATEREQ) || (icode == ICMOVXX && ifun == GREATEREQ)) {
+	return !(codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error));
+    }   
+    return false;    
 }
 
