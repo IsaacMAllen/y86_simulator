@@ -5,6 +5,7 @@
 #include "PipeReg.h"
 #include "M.h"
 #include "E.h"
+#include "W.h"
 #include "Stage.h"
 #include "ExecuteStage.h"
 #include "Status.h"
@@ -12,7 +13,7 @@
 #include "Instructions.h"
 #include "ConditionCodes.h"
 #include "Tools.h"
-
+#include "MemoryStage.h"
 /*
  * doClockLow:
  * Performs the Execute stage combinational logic that is performed when
@@ -37,17 +38,18 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     E * ereg = (E *) pregs[EREG];
     M * mreg = (M *) pregs[MREG];
+    MemoryStage * m = (MemoryStage *) stages[MSTAGE];
     
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
     uint64_t ifun = ereg->getifun()->getOutput();
     uint64_t cnd = cond(icode, ifun); 
-    valE = ereg->getvalC()->getOutput();
+    ExecuteStage::valE = ereg->getvalC()->getOutput();
     dstE = ereg->getdstE()->getOutput();
     if (setcc(icode)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
-
+    
     setMInput(mreg, ereg -> getstat() -> getOutput(), icode, cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
 
     return false;
