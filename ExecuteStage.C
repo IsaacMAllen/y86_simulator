@@ -46,6 +46,10 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     uint64_t cnd = cond(icode, ifun); 
     ExecuteStage::valE = ereg->getvalC()->getOutput();
     dstE = ereg->getdstE()->getOutput();
+    if(icode == IRRMOVQ){
+	ExecuteStage::valE = ereg->getvalA()->getOutput();
+    }
+
     if (setcc(icode)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
