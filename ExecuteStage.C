@@ -28,6 +28,7 @@ bool setcc(uint64_t E_icode);
 uint64_t getAluFun(E * ereg, uint64_t E_icode);
 uint64_t getAluA(E * ereg, uint64_t E_icode);
 uint64_t getAluB(E * ereg, uint64_t E_icode);
+bool cond(uint64_t icode, uint64_t ifun);
 
 uint64_t ExecuteStage::valE; 
 uint64_t ExecuteStage::dstE; 
@@ -188,5 +189,24 @@ uint64_t ExecuteStage::gete_valE(){
 
 uint64_t ExecuteStage::gete_dstE(){
     return ExecuteStage::dstE;
+}
+
+bool cond(uint64_t icode, uint64_t ifun) {
+
+    ConditionCodes * codes = ConditionCodes::getInstance();
+    bool error = false;
+    if(!(icode == IJXX || icode ==  ICMOVXX)) return 0;
+    
+    if(icode == IJXX || icode == IRRMOVQ) {
+	return true;	
+    }
+    if((icode == IJXX && ifun == LESSEQ) || (icode == ICMOVXX && ifun == LESSEQ)) {
+	return (codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error)) || codes->getConditionCode(ZF,error);
+    }
+    if((icode == IJXX && ifun == LESS) || (icode == ICMOVXX && ifun == LESS)) {
+	return (codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error));
+    }   
+
+    return false;
 }
 
