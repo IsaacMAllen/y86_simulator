@@ -163,6 +163,9 @@ uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     W * wreg = (W *) pregs[WREG];
     uint64_t d_srcA = getSrcA(dreg);
     bool error = false;
+    // icode == rrmove ccmove ret 0
+    uint64_t icode = dreg->geticode()->getOutput();
+    //if (icode == ICMOVXX || icode == IRRMOVQ) return 0;
     if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
     if(d_srcA == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
     if(d_srcA == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
@@ -176,6 +179,7 @@ uint64_t dvalB(D * dreg, PipeReg ** pregs) {
 
     uint64_t d_srcB = getSrcB(dreg);
     bool error = false;
+    if(d_srcB == RNONE) return 0;
     if(d_srcB == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
     if(d_srcB == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
     if(d_srcB == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
