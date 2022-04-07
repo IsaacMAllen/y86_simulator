@@ -9,9 +9,13 @@
 #include "MemoryStage.h"
 #include "Status.h"
 #include "Debug.h"
-
+#include "Memory.h"
+#include "Instructions.h"
 
 uint64_t MemoryStage::valM;
+bool memWrite(M * mreg);
+bool memRead(M * mreg);
+uint64_t memAddr(M * mreg);
 
 /*
  * doClockLow:
@@ -27,7 +31,19 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	M * mreg = (M *) pregs[MREG];
 	W * wreg = (W *) pregs[WREG];
 	valM = 0;
+	uint64_t addr = memAddr(mreg);
+	bool error = false;
 
+	if(memRead(mreg)){
+	    Memory * mem = Memory::getInstance();
+	    valM = mem->getLong((int32_t)addr, error);
+	}
+	else if(memWrite(mreg)){
+	    Memory * mem = Memory::getInstance();
+	    mem->putLong(mreg->getvalA()->getOutput(),addr, error); 
+	    
+	}
+	
 	setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(), valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
 	return false;
 }
@@ -65,4 +81,27 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t va
 
 uint64_t MemoryStage::getm_valM() {
     return MemoryStage::valM;
+}
+
+uint64_t memAddr(M * mreg) {
+
+    uint64_t M_icode = mreg->geticode()->getOutput();
+
+    if(M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL || M_icode == IMRMOVQ) return mreg->getvalE()->getOutput();
+    if(M_icode == IPOPQ || M_icode == IRET) return mreg->getvalA()->getOutput();
+    return 0;
+
+}
+
+bool memRead(M * mreg) {
+    
+    uint64_t M_icode = mreg->geticode()->getOutput();
+    return (M_icode == IMRMOVQ || M_icode == IPOPQ || M_icode == IRET);
+    
+}
+
+bool memWrite(M * mreg) {
+ 
+    uint64_t M_icode = mreg->geticode()->getOutput();
+    return (M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL);
 }

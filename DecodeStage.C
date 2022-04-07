@@ -167,8 +167,9 @@ uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     bool error = false;
     // icode == rrmove ccmove ret 0
     //uint64_t icode = dreg->geticode()->getOutput();
-    if (D_icode == IIRMOVQ || D_icode == IHALT) return 0;
     if(D_icode == ICALL || D_icode == IJXX) return dreg->getvalP()->getOutput();
+    //if(D_icode == IIRMOVQ || D_icode == IHALT) return 0;
+    if(d_srcA == RNONE) return 0;
     if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
     if(d_srcA == mreg->getdstM()->getOutput()) return MemoryStage::getm_valM();
     if(d_srcA == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
@@ -186,7 +187,9 @@ uint64_t dvalB(D * dreg, PipeReg ** pregs) {
     bool error = false;
     if(d_srcB == RNONE) return 0;
     if(d_srcB == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
+    if(d_srcB == mreg->getdstM()->getOutput()) return MemoryStage::getm_valM();
     if(d_srcB == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
+    if(d_srcB == wreg->getdstM()->getOutput()) return wreg->getvalM()->getOutput();
     if(d_srcB == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
     return getValB(dreg,error);
 }

@@ -50,6 +50,9 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     if(icode == IRRMOVQ){
 	ExecuteStage::valE = ereg->getvalA()->getOutput();
     }
+    if(icode == IMRMOVQ || icode == IRMMOVQ) {
+	ExecuteStage::valE = ereg->getvalC()->getOutput() + ereg->getvalB()->getOutput();
+    }
 
     if (setcc(icode)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
