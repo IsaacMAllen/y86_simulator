@@ -204,7 +204,7 @@ bool cond(uint64_t icode, uint64_t ifun) {
     bool error = false;
     if(!(icode == IJXX || icode ==  ICMOVXX)) return 0;
     
-    if(icode == IJXX || icode == IRRMOVQ) {
+    if((icode == IJXX || icode == IRRMOVQ) && ifun == UNCOND) {
 	return true;	
     }
     if((icode == IJXX && ifun == LESSEQ) || (icode == ICMOVXX && ifun == LESSEQ)) {

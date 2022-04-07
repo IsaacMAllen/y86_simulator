@@ -11,6 +11,8 @@
 #include "Debug.h"
 
 
+uint64_t MemoryStage::valM;
+
 /*
  * doClockLow:
  * Performs the Memory stage combinational logic that is performed when
@@ -24,7 +26,7 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
 	M * mreg = (M *) pregs[MREG];
 	W * wreg = (W *) pregs[WREG];
-	uint64_t valM = 0;
+	valM = 0;
 
 	setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(), valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
 	return false;
@@ -61,3 +63,6 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t va
 
 }
 
+uint64_t MemoryStage::getm_valM() {
+    return MemoryStage::valM;
+}

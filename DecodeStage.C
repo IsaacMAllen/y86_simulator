@@ -14,6 +14,7 @@
 #include "Debug.h"
 #include "Instructions.h"
 #include "ExecuteStage.h"
+#include "MemoryStage.h"
 
 uint64_t getSrcA(D * dreg);
 uint64_t getSrcB(D * dreg); 
@@ -161,14 +162,17 @@ uint64_t getValB(D * dreg, bool & error) {
 uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
+    uint64_t D_icode = dreg->geticode()->getOutput();
     uint64_t d_srcA = getSrcA(dreg);
     bool error = false;
     // icode == rrmove ccmove ret 0
     //uint64_t icode = dreg->geticode()->getOutput();
     //if (icode == ICMOVXX || icode == IRRMOVQ) return 0;
-    if(d_srcA == RNONE) return 0;
+    if(D_icode == ICALL || D_icode == IJXX) return dreg->getvalP()->getOutput();
     if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
+    if(d_srcA == mreg->getdstM()->getOutput()) return MemoryStage::getm_valM();
     if(d_srcA == mreg->getdstE()->getOutput()) return mreg->getvalE()->getOutput();
+    if(d_srcA == wreg->getdstM()->getOutput()) return wreg->getvalM()->getOutput();
     if(d_srcA == wreg->getdstE()->getOutput()) return wreg->getvalE()->getOutput();
     return getValA(dreg,error);
 
