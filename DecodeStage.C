@@ -167,7 +167,7 @@ uint64_t dvalA(D * dreg, PipeReg ** pregs) {
     bool error = false;
     // icode == rrmove ccmove ret 0
     //uint64_t icode = dreg->geticode()->getOutput();
-    //if (icode == ICMOVXX || icode == IRRMOVQ) return 0;
+    if (D_icode == IIRMOVQ || D_icode == IHALT) return 0;
     if(D_icode == ICALL || D_icode == IJXX) return dreg->getvalP()->getOutput();
     if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
     if(d_srcA == mreg->getdstM()->getOutput()) return MemoryStage::getm_valM();
