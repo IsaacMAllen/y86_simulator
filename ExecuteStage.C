@@ -30,6 +30,7 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode);
 uint64_t getAluA(E * ereg, uint64_t E_icode);
 uint64_t getAluB(E * ereg, uint64_t E_icode);
 bool cond(uint64_t icode, uint64_t ifun);
+uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd);
 
 uint64_t ExecuteStage::valE; 
 uint64_t ExecuteStage::dstE; 
@@ -38,14 +39,14 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     E * ereg = (E *) pregs[EREG];
     M * mreg = (M *) pregs[MREG];
-    MemoryStage * m = (MemoryStage *) stages[MSTAGE];
+    //MemoryStage * m = (MemoryStage *) stages[MSTAGE];
     
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
     uint64_t ifun = ereg->getifun()->getOutput();
     uint64_t cnd = cond(icode, ifun); 
     ExecuteStage::valE = ereg->getvalC()->getOutput();
-    dstE = ereg->getdstE()->getOutput();
+    dstE = eDstE(ereg,icode,cnd);
     if(icode == IRRMOVQ){
 	ExecuteStage::valE = ereg->getvalA()->getOutput();
     }
