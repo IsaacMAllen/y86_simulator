@@ -54,6 +54,14 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	ExecuteStage::valE = ereg->getvalC()->getOutput() + ereg->getvalB()->getOutput();
     }
 
+    if(icode == IPOPQ) {
+	ExecuteStage::valE = 8 + getAluB(ereg, icode);
+    }
+    
+    if (icode == IPUSHQ) {
+	ExecuteStage::valE = getAluB(ereg, icode) - 8;
+    }
+
     if (setcc(icode)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
