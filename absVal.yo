@@ -1,0 +1,56 @@
+0x000:                      |       .pos 0
+                            | #Put your code here. You'll need some 
+                            | #initialization code and then five chunks
+                            | #of code that are basically identical.
+0x000: 30f2f800000000000000 |       irmovq list, %rdx
+0x00a: 30f10000000000000000 |       irmovq $0, %rcx
+0x014: 50020000000000000000 |       mrmovq 0(%rdx), %rax
+0x01e: 10                   |       nop
+0x01f: 2003                 |       rrmovq %rax, %rbx
+0x021: 6101                 |       subq %rax, %rcx
+0x023: 2613                 |       cmovg %rcx, %rbx
+0x025: 403f0000000000000000 |       rmmovq %rbx, %rdx
+0x02f: 30f10000000000000000 |       irmovq $0, %rcx
+0x039: 50020800000000000000 |       mrmovq 8(%rdx), %rax
+0x043: 10                   |       nop
+0x044: 2003                 |       rrmovq %rax, %rbx
+0x046: 6101                 |       subq %rax, %rcx
+0x048: 2613                 |       cmovg %rcx, %rbx
+0x04a: 40320800000000000000 |       rmmovq %rbx, 8(%rdx)
+0x054: 30f10000000000000000 |       irmovq $0, %rcx
+0x05e: 50021000000000000000 |       mrmovq 16(%rdx), %rax
+0x068: 10                   |       nop
+0x069: 2003                 |       rrmovq %rax, %rbx
+0x06b: 6101                 |       subq %rax, %rcx
+0x06d: 2613                 |       cmovg %rcx, %rbx
+0x06f: 40321000000000000000 |       rmmovq %rbx, 16(%rdx)
+0x079: 30f10000000000000000 |       irmovq $0, %rcx
+0x083: 50021800000000000000 |       mrmovq 24(%rdx), %rax
+0x08d: 10                   |       nop
+0x08e: 2003                 |       rrmovq %rax, %rbx
+0x090: 6101                 |       subq %rax, %rcx
+0x092: 2613                 |       cmovg %rcx, %rbx
+0x094: 40321800000000000000 |       rmmovq %rbx, 24(%rdx)
+0x09e: 30f10000000000000000 |       irmovq $0, %rcx
+0x0a8: 50022000000000000000 |       mrmovq 32(%rdx), %rax
+0x0b2: 10                   |       nop
+0x0b3: 2003                 |       rrmovq %rax, %rbx
+0x0b5: 6101                 |       subq %rax, %rcx
+0x0b7: 2613                 |       cmovg %rcx, %rbx
+0x0b9: 40322000000000000000 |       rmmovq %rbx, 32(%rdx)
+0x0c3: 30f10000000000000000 |       irmovq $0, %rcx
+0x0cd: 50022800000000000000 |       mrmovq 40(%rdx), %rax
+0x0d7: 10                   |       nop
+0x0d8: 2003                 |       rrmovq %rax, %rbx
+0x0da: 6101                 |       subq %rax, %rcx
+0x0dc: 2613                 |       cmovg %rcx, %rbx
+0x0de: 40322800000000000000 |       rmmovq %rbx, 40(%rdx)
+0x0e8: 30f20000000000000000 |       irmovq $0, %rdx
+0x0f2: 00                   |       halt
+                            | 
+0x0f8:                      |       .align 8
+0x0f8: feffffffffffffff     | list: .quad -2            #at end: 2
+0x100: 0500000000000000     |       .quad 5             #at end: 5 
+0x108: f1ffffffffffffff     |       .quad -15           #at end: f
+0x110: 0000000000000000     |       .quad 0             #at end: 0
+0x118: ffffffffffffffff     |       .quad -1            #at end: 1
