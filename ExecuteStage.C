@@ -25,7 +25,7 @@
 */
 
 uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error);
-bool setcc(uint64_t E_icode);
+bool setcc(uint64_t E_icode, W * W);
 uint64_t getAluFun(E * ereg, uint64_t E_icode);
 uint64_t getAluA(E * ereg, uint64_t E_icode);
 uint64_t getAluB(E * ereg, uint64_t E_icode);
@@ -62,7 +62,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	ExecuteStage::valE = getAluB(ereg, icode) - 8;
     }
 
-    if (setcc(icode)){
+    if (setcc(icode, (W *) pregs[WREG])){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
     
@@ -127,8 +127,10 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode) {
     return ADDQ;
 }
 // If True CC will be used to set the Condition Codes
-bool setcc(uint64_t E_icode) {
-    return E_icode == IOPQ;
+bool setcc(uint64_t E_icode, W * W) {
+    uint64_t m_stat = MemoryStage::getm_stat();
+    uint64_t W_stat = W->getstat()->getOutput();
+    return E_icode == IOPQ && (m_stat != SADR || m_stat != SINS || m_stat != SHLT) && (W_stat != SADR || W_stat != SINS || W_stat != SHLT);
 }
 
 uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {

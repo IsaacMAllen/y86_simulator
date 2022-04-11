@@ -13,6 +13,7 @@
 #include "Instructions.h"
 
 uint64_t MemoryStage::valM;
+uint64_t MemoryStage::stat;
 bool memWrite(M * mreg);
 bool memRead(M * mreg);
 uint64_t memAddr(M * mreg);
@@ -81,6 +82,10 @@ void MemoryStage::setWInput(W * wreg, uint64_t stat, uint64_t icode, uint64_t va
 
 uint64_t MemoryStage::getm_valM() {
     return MemoryStage::valM;
+}
+
+uint64_t MemoryStage::getm_stat() {
+    return MemoryStage::stat;
 }
 
 uint64_t memAddr(M * mreg) {

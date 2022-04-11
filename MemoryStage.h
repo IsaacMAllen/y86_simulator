@@ -8,5 +8,7 @@ class MemoryStage: public Stage
 		bool doClockLow(PipeReg ** pregs, Stage ** stages);
 		void doClockHigh(PipeReg ** pregs);
 		static uint64_t valM;
+		static uint64_t stat;
 		static uint64_t getm_valM();
+		static uint64_t getm_stat();
 };

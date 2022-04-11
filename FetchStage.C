@@ -24,6 +24,8 @@ uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
 void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t f_icode);
 uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error); 
 uint64_t fStat(uint64_t icode, bool mem_error);
+uint64_t fIcode(uint64_t mem_icode, bool mem_error); 
+uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
 
 /*
  * doClockLow:
@@ -49,11 +51,13 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //The lab assignment describes what methods need to be
     //written.
     uint64_t f_pc = selectPC(freg, mreg, wreg);
-    bool mem_error = true;
+    bool mem_error = false;
     Memory * mem = Memory::getInstance();
     uint8_t icodeifun = mem -> getByte((int) f_pc, mem_error);
     f_icode = icodeifun >> 4;
     f_ifun = icodeifun & 0x0F;
+    f_icode = fIcode(f_icode, mem_error);
+    f_ifun = fIFun(f_ifun, mem_error);
     valC = buildValC(f_pc, f_icode, mem_error);
     //The value passed to setInput below will need to be changed
     getRegIds(f_pc,mem_error,rA,rB,f_icode);
@@ -205,4 +209,12 @@ uint64_t fStat(uint64_t icode, bool mem_error) {
     return SAOK;
 }
 
+uint64_t fIcode(uint64_t mem_icode, bool mem_error) {
+    if (mem_error) return INOP;
+    return mem_icode;
+}
 
+uint64_t fIFun(uint64_t mem_ifun, bool mem_error) {
+    if (mem_error) return FNONE;
+    return mem_ifun;
+}
