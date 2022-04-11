@@ -31,6 +31,7 @@ uint64_t getAluA(E * ereg, uint64_t E_icode);
 uint64_t getAluB(E * ereg, uint64_t E_icode);
 bool cond(uint64_t icode, uint64_t ifun);
 uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd);
+bool calculateControlSignals(uint64_t m_stat, uint64_t W_stat);
 
 uint64_t ExecuteStage::valE; 
 uint64_t ExecuteStage::dstE; 
@@ -39,6 +40,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     E * ereg = (E *) pregs[EREG];
     M * mreg = (M *) pregs[MREG];
+    W * wreg = (W *) pregs[WREG];
     //MemoryStage * m = (MemoryStage *) stages[MSTAGE];
     
     bool error = false;
@@ -62,10 +64,12 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	ExecuteStage::valE = getAluB(ereg, icode) - 8;
     }
 
-    if (setcc(icode, (W *) pregs[WREG])){
+    if (setcc(icode, wreg)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
     
+    M_bubble = calculateControlSignals(MemoryStage::getm_stat(),wreg->getstat()->getOutput());
+
     setMInput(mreg, ereg -> getstat() -> getOutput(), icode, cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
 
     return false;
@@ -80,14 +84,25 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 void ExecuteStage::doClockHigh(PipeReg ** pregs)
 {
 	M * mreg = (M *) pregs[MREG];
-
-	mreg->getstat()->normal();
-	mreg->geticode()->normal();
-	mreg->getCnd()->normal();
-	mreg->getvalE()->normal();
-	mreg->getvalA()->normal();
-	mreg->getdstE()->normal();
-	mreg->getdstM()->normal();
+	
+	if(!M_bubble) {
+	    mreg->getstat()->normal();
+	    mreg->geticode()->normal();
+	    mreg->getCnd()->normal();
+	    mreg->getvalE()->normal();
+	    mreg->getvalA()->normal();
+	    mreg->getdstE()->normal();
+	    mreg->getdstM()->normal();
+	}
+	else {
+	    mreg->getstat()->bubble(SAOK);
+	    mreg->geticode()->bubble(INOP);
+	    mreg->getCnd()->bubble();
+	    mreg->getvalE()->bubble();
+	    mreg->getvalA()->bubble();
+	    mreg->getdstE()->bubble(RNONE);
+	    mreg->getdstM()->bubble(RNONE);
+	}
 
 
 }
@@ -242,3 +257,7 @@ bool cond(uint64_t icode, uint64_t ifun) {
     return false;    
 }
 
+bool calculateControlSignals(uint64_t m_stat, uint64_t W_stat) {
+    return (m_stat == SADR || m_stat == SINS || m_stat == SHLT) || (W_stat == SADR 
+	    || W_stat == SINS || W_stat == SHLT);       
+}
