@@ -23,6 +23,7 @@ uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
 uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
 void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t f_icode);
 uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error); 
+uint64_t fStat(uint64_t icode, bool mem_error);
 
 /*
  * doClockLow:
@@ -48,14 +49,15 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //The lab assignment describes what methods need to be
     //written.
     uint64_t f_pc = selectPC(freg, mreg, wreg);
-    bool error = true;
+    bool mem_error = true;
     Memory * mem = Memory::getInstance();
-    uint8_t icodeifun = mem -> getByte((int) f_pc, error);
+    uint8_t icodeifun = mem -> getByte((int) f_pc, mem_error);
     f_icode = icodeifun >> 4;
     f_ifun = icodeifun & 0x0F;
-    valC = buildValC(f_pc, f_icode, error);
+    valC = buildValC(f_pc, f_icode, mem_error);
     //The value passed to setInput below will need to be changed
-    getRegIds(f_pc,error,rA,rB,f_icode);    
+    getRegIds(f_pc,mem_error,rA,rB,f_icode);
+    stat = fStat(f_icode,mem_error);    
     valP = PCincrement(f_pc, needRegIds(f_icode), needValC(f_icode));
     freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
@@ -182,14 +184,25 @@ uint64_t buildValC(uint64_t instruction, uint64_t icode, bool & error) {
     for (; start < n; ++start) {
 	valCArray[start + offset] = mem->getByte((int32_t) instruction + start, error);
     }
-	error = false;
 	valC = Tools::buildLong(valCArray);
 	return valC;
     }
-    error = true;
     return valC;
 }
 
+bool instr_valid(uint64_t icode) {
 
+    return (icode == INOP || icode == IHALT || icode == IRRMOVQ || icode == IIRMOVQ 
+	    || icode == IRMMOVQ || icode == IMRMOVQ || icode == IOPQ || icode == IJXX 
+	    || icode == ICALL || icode == IRET || icode == IPUSHQ || icode == IPOPQ);
+}
+
+uint64_t fStat(uint64_t icode, bool mem_error) {
+    //to do: if mem_error return SADR
+    if(mem_error) return SADR;
+    if(!(instr_valid(icode))) return SINS;
+    if(icode == IHALT) return SHLT;
+    return SAOK;
+}
 
 
