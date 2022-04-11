@@ -6,11 +6,13 @@
 #include "PipeReg.h"
 #include "F.h"
 #include "D.h"
+#include "E.h"
 #include "M.h"
 #include "W.h"
 #include "Instructions.h"
 #include "Stage.h"
 #include "FetchStage.h"
+#include "DecodeStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Memory.h"
@@ -217,4 +219,12 @@ uint64_t fIcode(uint64_t mem_icode, bool mem_error) {
 uint64_t fIFun(uint64_t mem_ifun, bool mem_error) {
     if (mem_error) return FNONE;
     return mem_ifun;
+}
+
+void calculateControlSignals(bool & F_stall, bool & D_stall, E * E) {
+    uint64_t E_icode = E->geticode()->getOutput();
+    uint64_t E_dstM = E->getdstM()->getOutput();
+
+    F_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
+    D_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
 }

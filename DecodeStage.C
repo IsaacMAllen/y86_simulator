@@ -25,6 +25,9 @@ uint64_t getValB(D * dreg, bool & error);
 uint64_t dvalA(D * dreg, PipeReg ** pregs);
 uint64_t dvalB(D * dreg, PipeReg ** pregs);
 
+uint64_t DecodeStage::d_srcA;
+uint64_t DecodeStage::d_srcB;
+
 /*
  * doClockLow:
  * Performs the Decode stage combinational logic that is performed when
@@ -42,7 +45,9 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     uint64_t valB = dvalB(dreg,pregs); 
     uint64_t dstE = getDstE(dreg);
     uint64_t dstM = getDstM(dreg);
-    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, getSrcA(dreg), getSrcB(dreg)); 
+    d_srcA = getSrcA(dreg);
+    d_srcB = getSrcB(dreg);
+    setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, d_srcA, d_srcB); 
     return false;
 }
 
@@ -197,7 +202,13 @@ uint64_t dvalB(D * dreg, PipeReg ** pregs) {
     return getValB(dreg,error);
 }
 
+uint64_t DecodeStage::getd_srcA(){
+    return d_srcA;
+}
 
+uint64_t DecodeStage::getd_srcB(){
+    return d_srcB;
+}
 
 
 
