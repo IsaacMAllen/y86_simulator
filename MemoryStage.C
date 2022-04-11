@@ -17,6 +17,7 @@ uint64_t MemoryStage::stat;
 bool memWrite(M * mreg);
 bool memRead(M * mreg);
 uint64_t memAddr(M * mreg);
+uint64_t m_stat(bool mem_error, uint64_t M_stat);
 
 /*
  * doClockLow:
@@ -33,19 +34,19 @@ bool MemoryStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	W * wreg = (W *) pregs[WREG];
 	valM = 0;
 	uint64_t addr = memAddr(mreg);
-	bool error = false;
+	bool mem_error = false;
 
 	if(memRead(mreg)){
 	    Memory * mem = Memory::getInstance();
-	    valM = mem->getLong((int32_t)addr, error);
+	    valM = mem->getLong((int32_t)addr, mem_error);
 	}
 	else if(memWrite(mreg)){
 	    Memory * mem = Memory::getInstance();
-	    mem->putLong(mreg->getvalA()->getOutput(),addr, error); 
+	    mem->putLong(mreg->getvalA()->getOutput(),addr, mem_error); 
 	    
 	}
-	
-	setWInput(wreg, mreg->getstat()->getOutput(), mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(), valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
+	stat = m_stat(mem_error, mreg->getstat()->getOutput());
+	setWInput(wreg, stat, mreg->geticode()->getOutput(), mreg->getvalE()->getOutput(), valM, mreg->getdstE()->getOutput(), mreg->getdstM()->getOutput());
 	return false;
 }
 
@@ -109,4 +110,9 @@ bool memWrite(M * mreg) {
  
     uint64_t M_icode = mreg->geticode()->getOutput();
     return (M_icode == IRMMOVQ || M_icode == IPUSHQ || M_icode == ICALL);
+}
+
+uint64_t m_stat(bool mem_error, uint64_t M_stat) {
+    if (mem_error) return SADR;
+    return M_stat;
 }

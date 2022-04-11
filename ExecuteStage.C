@@ -145,7 +145,7 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode) {
 bool setcc(uint64_t E_icode, W * W) {
     uint64_t m_stat = MemoryStage::getm_stat();
     uint64_t W_stat = W->getstat()->getOutput();
-    return E_icode == IOPQ && (m_stat != SADR || m_stat != SINS || m_stat != SHLT) && (W_stat != SADR || W_stat != SINS || W_stat != SHLT);
+    return E_icode == IOPQ && (m_stat != SADR && m_stat != SINS && m_stat != SHLT) && (W_stat != SADR && W_stat != SINS && W_stat != SHLT);
 }
 
 uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {

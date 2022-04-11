@@ -10,6 +10,8 @@
 #include "W.h"
 #include "Instructions.h"
 
+bool notSAOK(uint64_t W_stat);
+
 /*
  * doClockLow:
  * Performs the Writeback stage combinational logic that is performed when
@@ -22,9 +24,7 @@
 bool WritebackStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
     W * wreg = (W *) pregs[WREG];
-     
-    bool isHlt = wreg -> geticode() -> getOutput() == IHALT;
-    return isHlt;
+    return notSAOK(wreg->getstat()->getOutput());
 }
 
 /* doClockHigh
@@ -48,3 +48,6 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
     
 }
 
+bool notSAOK(uint64_t W_stat) {
+    return W_stat != SAOK;
+}
