@@ -28,6 +28,7 @@ uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error);
 uint64_t fStat(uint64_t icode, bool mem_error);
 uint64_t fIcode(uint64_t mem_icode, bool mem_error); 
 uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
+void calculateControlSignals(bool & F_stall, bool & D_stall, E * E); 
 
 /*
  * doClockLow:
@@ -41,6 +42,7 @@ uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
 bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     F * freg = (F *) pregs[FREG];
     D * dreg = (D *) pregs[DREG];
+    E * ereg = (E *) pregs[EREG];
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
     uint64_t f_icode = 0, f_ifun = 0, valC = 0, valP = 0;
@@ -67,6 +69,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     valP = PCincrement(f_pc, needRegIds(f_icode), needValC(f_icode));
     freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
+    calculateControlSignals(F_stall, D_stall, ereg);
     setDInput(dreg, stat, f_icode, f_ifun, rA, rB, valC, valP);
     return false;
 }
@@ -80,15 +83,16 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
 void FetchStage::doClockHigh(PipeReg ** pregs) {
     F * freg = (F *) pregs[FREG];
     D * dreg = (D *) pregs[DREG];
-
-    freg->getpredPC()->normal();
-    dreg->getstat()->normal();
-    dreg->geticode()->normal();
-    dreg->getifun()->normal();
-    dreg->getrA()->normal();
-    dreg->getrB()->normal();
-    dreg->getvalC()->normal();
-    dreg->getvalP()->normal();
+    if (!F_stall) freg->getpredPC()->normal();
+    if (!D_stall) {
+        dreg->getstat()->normal();
+        dreg->geticode()->normal();
+        dreg->getifun()->normal();
+        dreg->getrA()->normal();
+        dreg->getrB()->normal();
+        dreg->getvalC()->normal();
+        dreg->getvalP()->normal();
+    }
 }
 
 /* setDInput
