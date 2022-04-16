@@ -10,7 +10,10 @@ class ExecuteStage: public Stage
         void doClockHigh(PipeReg ** pregs);
 	static uint64_t valE;
 	static uint64_t dstE;
+	static uint64_t e_Cnd;
+
 	static uint64_t gete_dstE();
 	static uint64_t gete_valE();
+	static uint64_t gete_Cnd();
 
 };

@@ -13,6 +13,7 @@
 #include "Stage.h"
 #include "FetchStage.h"
 #include "DecodeStage.h"
+#include "ExecuteStage.h"
 #include "Status.h"
 #include "Debug.h"
 #include "Memory.h"
@@ -28,7 +29,9 @@ uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error);
 uint64_t fStat(uint64_t icode, bool mem_error);
 uint64_t fIcode(uint64_t mem_icode, bool mem_error); 
 uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
-void calculateControlSignals(bool & F_stall, bool & D_stall, E * E); 
+void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, E * E); 
+void bubbleD(D * dreg);
+void normalD(D * dreg);
 
 /*
  * doClockLow:
@@ -69,7 +72,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     valP = PCincrement(f_pc, needRegIds(f_icode), needValC(f_icode));
     freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
-    calculateControlSignals(F_stall, D_stall, ereg);
+    calculateControlSignals(F_stall, D_stall, D_bubble, ereg);
     setDInput(dreg, stat, f_icode, f_ifun, rA, rB, valC, valP);
     return false;
 }
@@ -83,15 +86,14 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
 void FetchStage::doClockHigh(PipeReg ** pregs) {
     F * freg = (F *) pregs[FREG];
     D * dreg = (D *) pregs[DREG];
+    
     if (!F_stall) freg->getpredPC()->normal();
-    if (!D_stall) {
-        dreg->getstat()->normal();
-        dreg->geticode()->normal();
-        dreg->getifun()->normal();
-        dreg->getrA()->normal();
-        dreg->getrB()->normal();
-        dreg->getvalC()->normal();
-        dreg->getvalP()->normal();
+    
+    if(D_bubble) {
+	bubbleD(dreg);	
+    }	
+    else if (!D_stall) {
+	normalD(dreg);
     }
 }
 
@@ -225,10 +227,33 @@ uint64_t fIFun(uint64_t mem_ifun, bool mem_error) {
     return mem_ifun;
 }
 
-void calculateControlSignals(bool & F_stall, bool & D_stall, E * E) {
+void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, E * E) {
     uint64_t E_icode = E->geticode()->getOutput();
     uint64_t E_dstM = E->getdstM()->getOutput();
-
+     
     F_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
     D_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
+    D_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd());
+}
+
+void bubbleD(D * dreg) {
+        dreg->getstat()->bubble(SAOK);
+        dreg->geticode()->bubble(INOP);
+        dreg->getifun()->bubble(FNONE);
+        dreg->getrA()->bubble(RNONE);
+        dreg->getrB()->bubble(RNONE);
+        dreg->getvalC()->bubble(0);
+        dreg->getvalP()->bubble(0);
+    
+}
+
+void normalD(D * dreg) {
+        dreg->getstat()->normal();
+        dreg->geticode()->normal();
+	dreg->getifun()->normal();
+        dreg->getrA()->normal();
+        dreg->getrB()->normal();
+        dreg->getvalC()->normal();
+        dreg->getvalP()->normal();
+
 }

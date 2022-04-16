@@ -36,7 +36,7 @@ ExecuteStage.o: MemoryStage.h Tools.h Instructions.h ConditionCodes.h RegisterFi
 
 MemoryStage.o: Instructions.h Memory.h RegisterFile.h PipeRegField.h PipeReg.h F.h D.h M.h E.h W.h Stage.h MemoryStage.h Status.h Debug.h
 
-FetchStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h E.h W.h M.h Instructions.h Stage.h FetchStage.h DecodeStage.h Status.h Debug.h
+FetchStage.o: RegisterFile.h PipeRegField.h PipeReg.h F.h D.h E.h W.h M.h Instructions.h Stage.h FetchStage.h DecodeStage.h ExecuteStage.h Status.h Debug.h
 
 Loader.o: Loader.h Memory.h
 

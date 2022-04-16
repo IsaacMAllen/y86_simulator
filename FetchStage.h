@@ -8,6 +8,7 @@ class FetchStage: public Stage
                      uint64_t valC, uint64_t valP);
       bool F_stall = false;
       bool D_stall = false;
+      bool D_bubble = false;
    public:
       bool doClockLow(PipeReg ** pregs, Stage ** stages);
       void doClockHigh(PipeReg ** pregs);

@@ -35,6 +35,7 @@ bool calculateControlSignals(uint64_t m_stat, uint64_t W_stat);
 
 uint64_t ExecuteStage::valE; 
 uint64_t ExecuteStage::dstE; 
+uint64_t ExecuteStage::e_Cnd;
 
 bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
@@ -225,6 +226,10 @@ uint64_t ExecuteStage::gete_valE(){
 
 uint64_t ExecuteStage::gete_dstE(){
     return ExecuteStage::dstE;
+}
+
+uint64_t ExecuteStage::gete_Cnd(){
+    return ExecuteStage::e_Cnd;
 }
 
 bool cond(uint64_t icode, uint64_t ifun) {
