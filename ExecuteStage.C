@@ -47,9 +47,11 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     bool error = false;
     uint64_t icode = ereg->geticode()->getOutput();
     uint64_t ifun = ereg->getifun()->getOutput();
-    uint64_t cnd = cond(icode, ifun); 
-    ExecuteStage::valE = ereg->getvalC()->getOutput();
-    dstE = eDstE(ereg,icode,cnd);
+    e_Cnd = cond(icode, ifun); 
+    if (icode != IJXX) {
+	ExecuteStage::valE = ereg->getvalC()->getOutput();
+    }
+    dstE = eDstE(ereg,icode,e_Cnd);
     if(icode == IRRMOVQ){
 	ExecuteStage::valE = ereg->getvalA()->getOutput();
     }
@@ -64,14 +66,18 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     if (icode == IPUSHQ) {
 	ExecuteStage::valE = getAluB(ereg, icode) - 8;
     }
+    
+    if (icode == IJXX) {
+	ExecuteStage::valE = 0;
+    }
 
     if (setcc(icode, wreg)){
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
-    
+
     M_bubble = calculateControlSignals(MemoryStage::getm_stat(),wreg->getstat()->getOutput());
 
-    setMInput(mreg, ereg -> getstat() -> getOutput(), icode, cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
+    setMInput(mreg, ereg -> getstat() -> getOutput(), icode, e_Cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
 
     return false;
 }

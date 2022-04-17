@@ -23,15 +23,16 @@ uint64_t selectPC(F * freg, M * mreg, W * wreg);
 bool needRegIds(uint64_t f_icode);
 bool needValC(uint64_t f_icode);
 uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP);
-uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC);
+uint64_t PCincrement(uint64_t f_pc, uint64_t f_icode, bool needRegIds, bool needValC);
 void getRegIds(uint64_t pc, bool & error, uint64_t & rA, uint64_t & rB, uint64_t f_icode);
 uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error); 
 uint64_t fStat(uint64_t icode, bool mem_error);
 uint64_t fIcode(uint64_t mem_icode, bool mem_error); 
 uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
+void Dbubble(uint64_t E_icode, bool & D_bubble);
 void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, E * E); 
 void bubbleD(D * dreg);
-void normalD(D * dreg);
+void normalD(D * dreg, F * freg, bool & F_stall);
 
 /*
  * doClockLow:
@@ -69,7 +70,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     //The value passed to setInput below will need to be changed
     getRegIds(f_pc,mem_error,rA,rB,f_icode);
     stat = fStat(f_icode,mem_error);    
-    valP = PCincrement(f_pc, needRegIds(f_icode), needValC(f_icode));
+    valP = PCincrement(f_pc, f_icode, needRegIds(f_icode), needValC(f_icode));
     freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
     calculateControlSignals(F_stall, D_stall, D_bubble, ereg);
@@ -86,14 +87,12 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
 void FetchStage::doClockHigh(PipeReg ** pregs) {
     F * freg = (F *) pregs[FREG];
     D * dreg = (D *) pregs[DREG];
-    
     if (!F_stall) freg->getpredPC()->normal();
-    
     if(D_bubble) {
 	bubbleD(dreg);	
     }	
     else if (!D_stall) {
-	normalD(dreg);
+	normalD(dreg, freg, F_stall);
     }
 }
 
@@ -147,9 +146,12 @@ uint64_t predictPC(uint64_t f_icode, uint64_t f_valC, uint64_t f_valP) {
     return f_valP;
 }
 
-uint64_t PCincrement(uint64_t f_pc, bool needRegIds, bool needValC) {
-    if (needValC) {
+uint64_t PCincrement(uint64_t f_pc, uint64_t f_icode, bool needRegIds, bool needValC) {
+    if (needValC && f_icode != IJXX) {
 	f_pc += 10;
+    }
+    else if (f_icode == IJXX) {
+	f_pc += 9;
     }
     else if (needRegIds && !needValC) {
 	f_pc += 2;
@@ -227,13 +229,16 @@ uint64_t fIFun(uint64_t mem_ifun, bool mem_error) {
     return mem_ifun;
 }
 
+void Dbubble(uint64_t E_icode, bool & D_bubble) {
+    D_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd());
+}
+
 void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, E * E) {
     uint64_t E_icode = E->geticode()->getOutput();
     uint64_t E_dstM = E->getdstM()->getOutput();
-     
+    Dbubble(E_icode, D_bubble); 
     F_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
     D_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB());
-    D_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd());
 }
 
 void bubbleD(D * dreg) {
@@ -247,7 +252,7 @@ void bubbleD(D * dreg) {
     
 }
 
-void normalD(D * dreg) {
+void normalD(D * dreg, F * freg, bool & F_stall) {
         dreg->getstat()->normal();
         dreg->geticode()->normal();
 	dreg->getifun()->normal();

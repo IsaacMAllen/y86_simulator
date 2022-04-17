@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <cstdint>
 #include "RegisterFile.h"
@@ -217,8 +218,7 @@ uint64_t DecodeStage::getd_srcB(){
 void calculateControlSignals(bool & E_bubble, E * E){
     uint64_t E_icode = E->geticode()->getOutput();
     uint64_t E_dstM = E->getdstM()->getOutput();
-    E_bubble = ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA())) || (E_dstM == DecodeStage::getd_srcB() ||
-	    (E_icode == IJXX && !ExecuteStage::gete_Cnd()));
+    E_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd()) || ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB()));
 }
 
 void bubbleE(E * ereg) {
