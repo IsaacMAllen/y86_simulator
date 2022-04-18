@@ -40,7 +40,7 @@ void WritebackStage::doClockHigh(PipeReg ** pregs)
     RegisterFile * reggiejr = RegisterFile::getInstance();
     uint64_t W_icode = wreg->geticode()->getOutput();
 
-    if(!(W_icode == IRMMOVQ || W_icode == ICALL)){
+    if(!(W_icode == IRMMOVQ) /*|| W_icode == ICALL)*/){
 	reggiejr->writeRegister(wreg->getvalE()->getOutput(), (int32_t) wreg->getdstE()->getOutput(), error); 
     }
     

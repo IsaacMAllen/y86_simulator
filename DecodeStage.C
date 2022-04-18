@@ -157,7 +157,8 @@ uint64_t getDstM(D * dreg) {
 uint64_t getValA(D * dreg, bool & error) {
     
     RegisterFile * reggie = RegisterFile::getInstance();
-    if (dreg->geticode()->getOutput() != IPOPQ) {
+    uint64_t D_icode = dreg -> geticode() -> getOutput();
+    if (D_icode != IPOPQ && D_icode != IRET) {
 	return reggie->readRegister((int32_t)dreg->getrA()->getOutput(), error);
     }
     return reggie->readRegister(RSP, error);
@@ -166,7 +167,8 @@ uint64_t getValA(D * dreg, bool & error) {
 uint64_t getValB(D * dreg, bool & error) {
 
     RegisterFile * reggie = RegisterFile::getInstance();
-    if (dreg->geticode()->getOutput() != IPOPQ && dreg->geticode()->getOutput() != IPUSHQ) {
+    uint64_t D_icode = dreg -> geticode() -> getOutput();
+    if (D_icode != IPOPQ && D_icode != IPUSHQ && D_icode != IRET && D_icode != ICALL) {
 	return reggie->readRegister((int32_t)dreg->getrB()->getOutput(), error);
     }
     return reggie->readRegister(RSP, error);
