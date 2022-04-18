@@ -67,6 +67,10 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	ExecuteStage::valE = getAluB(ereg, icode) - 8;
     }
     
+    if (icode == ICALL || icode == IRET) {
+	ExecuteStage::valE = getAluA(ereg, icode) + getAluB(ereg, icode);
+    }
+
     if (icode == IJXX) {
 	ExecuteStage::valE = 0;
     }
