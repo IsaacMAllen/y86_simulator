@@ -38,7 +38,7 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     dstM = getDstM(dreg);
     d_srcA = getSrcA(dreg);
     d_srcB = getSrcB(dreg);
-    calculateControlSignals(E_bubble, ereg);
+    calculateControlSignals(E_bubble, ereg, stages);
     setEInput(ereg, dreg -> getstat() -> getOutput(), dreg -> geticode() -> getOutput(), dreg -> getifun() -> getOutput(), dreg -> getvalC() -> getOutput(), valA, valB, dstE, dstM, d_srcA, d_srcB); 
     return false;
 }
@@ -300,10 +300,11 @@ uint64_t DecodeStage::getd_srcB(){
  * calculateControlSignals:
  * determines wheter or not to bubble the following Execute Stage
  */
-void DecodeStage::calculateControlSignals(bool & E_bubble, E * E){
+void DecodeStage::calculateControlSignals(bool & E_bubble, E * E, Stage ** stages){
+    ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
     uint64_t E_icode = E -> geticode() -> getOutput();
     uint64_t E_dstM = E -> getdstM() -> getOutput();
-    E_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd()) || ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB()));
+    E_bubble = (E_icode == IJXX && !e -> gete_Cnd()) || ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB()));
 }
 
 /*

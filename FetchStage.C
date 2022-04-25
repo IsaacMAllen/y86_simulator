@@ -29,8 +29,8 @@ uint64_t buildValC(uint64_t instruction, uint64_t f_icode, bool & error);
 uint64_t fStat(uint64_t icode, bool mem_error);
 uint64_t fIcode(uint64_t mem_icode, bool mem_error); 
 uint64_t fIFun(uint64_t mem_ifun, bool mem_error);
-void Dbubble(D * D, E * E, M * M, bool & D_bubble, DecodeStage * d);
-void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, D * D, E * E, M * M, DecodeStage * d); 
+void Dbubble(D * D, E * E, M * M, bool & D_bubble, DecodeStage * d, Stage ** stages);
+void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, D * D, E * E, M * M, DecodeStage * d, Stage ** stages); 
 void bubbleD(D * dreg);
 void normalD(D * dreg, F * freg, bool & F_stall);
 
@@ -74,7 +74,7 @@ bool FetchStage::doClockLow(PipeReg ** pregs, Stage ** stages) {
     valP = PCincrement(f_pc, f_icode, needRegIds(f_icode), needValC(f_icode));
     freg->getpredPC()->setInput(predictPC(f_icode, valC, valP));
     //provide the input values for the D register
-    calculateControlSignals(F_stall, D_stall, D_bubble, dreg, ereg, mreg, d);
+    calculateControlSignals(F_stall, D_stall, D_bubble, dreg, ereg, mreg, d, stages);
     setDInput(dreg, stat, f_icode, f_ifun, rA, rB, valC, valP);
     return false;
 }
@@ -230,25 +230,26 @@ uint64_t fIFun(uint64_t mem_ifun, bool mem_error) {
     return mem_ifun;
 }
 
-void Dbubble(D * D, E * E, M * M, bool & D_bubble, DecodeStage * d) {
-
+void Dbubble(D * D, E * E, M * M, bool & D_bubble, DecodeStage * d, Stage ** stages) {
+    
+    ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
     uint64_t D_icode = D -> geticode() -> getOutput();
     uint64_t E_icode = E -> geticode() -> getOutput();
     uint64_t M_icode = M -> geticode() -> getOutput();
     uint64_t E_dstM = E -> getdstM() -> getOutput();
 
-    D_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd()) || 
+    D_bubble = (E_icode == IJXX && !e -> gete_Cnd()) || 
 		(!((E_icode == IMRMOVQ || E_icode == IPOPQ) &&
 		(E_dstM == d -> getd_srcA() || E_dstM == d -> getd_srcB())) &&
 		(IRET == D_icode || IRET == E_icode || IRET == M_icode));
 }
 
-void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, D * D, E * E, M * M, DecodeStage * d) {
+void calculateControlSignals(bool & F_stall, bool & D_stall, bool & D_bubble, D * D, E * E, M * M, DecodeStage * d, Stage ** stages) {
     uint64_t E_icode = E -> geticode() -> getOutput();
     uint64_t E_dstM = E -> getdstM() -> getOutput();
     uint64_t D_icode = D -> geticode() -> getOutput();
     uint64_t M_icode = M -> geticode() -> getOutput();
-    Dbubble(D, E, M, D_bubble, d); 
+    Dbubble(D, E, M, D_bubble, d, stages); 
     F_stall = ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d -> getd_srcA() || E_dstM == d -> getd_srcB())) || 
 	    (IRET == D_icode || IRET == E_icode || IRET == M_icode);
     D_stall = (E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == d -> getd_srcA() || E_dstM == d -> getd_srcB());

@@ -15,18 +15,6 @@
 #include "Tools.h"
 #include "MemoryStage.h"
 
-uint64_t performOp(uint64_t e_icode, uint64_t val_rA, uint64_t val_rB, bool & error);
-bool setcc(uint64_t E_icode, W * W);
-uint64_t getAluFun(E * ereg, uint64_t E_icode);
-uint64_t getAluA(E * ereg, uint64_t E_icode);
-uint64_t getAluB(E * ereg, uint64_t E_icode);
-bool cond(uint64_t icode, uint64_t ifun);
-uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd);
-bool calculateControlSignals(uint64_t m_stat, uint64_t W_stat);
-
-uint64_t ExecuteStage::valE; 
-uint64_t ExecuteStage::dstE; 
-uint64_t ExecuteStage::e_Cnd;
 /*
  * doClockLow:
  * Performs the Execute stage combinational logic that is performed when
@@ -48,39 +36,39 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     uint64_t ifun = ereg -> getifun() -> getOutput();
     e_Cnd = cond(icode, ifun); 
     if (icode != IJXX) {
-	ExecuteStage::valE = ereg -> getvalC() -> getOutput();
+	valE = ereg -> getvalC() -> getOutput();
     }
     dstE = eDstE(ereg,icode,e_Cnd);
     if(icode == IRRMOVQ){
-	ExecuteStage::valE = ereg -> getvalA() -> getOutput();
+	valE = ereg -> getvalA() -> getOutput();
     }
     if(icode == IMRMOVQ || icode == IRMMOVQ) {
-	ExecuteStage::valE = ereg -> getvalC() -> getOutput() + ereg -> getvalB() -> getOutput();
+	valE = ereg -> getvalC() -> getOutput() + ereg -> getvalB() -> getOutput();
     }
 
     if(icode == IPOPQ) {
-	ExecuteStage::valE = 8 + getAluB(ereg, icode);
+	valE = 8 + getAluB(ereg, icode);
     }
     
     if (icode == IPUSHQ) {
-	ExecuteStage::valE = getAluB(ereg, icode) - 8;
+	valE = getAluB(ereg, icode) - 8;
     }
     
     if (icode == ICALL || icode == IRET) {
-	ExecuteStage::valE = getAluA(ereg, icode) + getAluB(ereg, icode);
+	valE = getAluA(ereg, icode) + getAluB(ereg, icode);
     }
 
     if (icode == IJXX) {
-	ExecuteStage::valE = 0;
+	valE = 0;
     }
 
     if (setcc(icode, wreg)){
-	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
+	valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
 
     M_bubble = calculateControlSignals(MemoryStage::getm_stat(),wreg -> getstat() -> getOutput());
 
-    setMInput(mreg, ereg -> getstat() -> getOutput(), icode, e_Cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
+    setMInput(mreg, ereg -> getstat() -> getOutput(), icode, e_Cnd, valE, ereg -> getvalA() -> getOutput(), dstE, ereg -> getdstM() -> getOutput());
 
     return false;
 }
@@ -144,7 +132,7 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t c
  * @param: ereg - pointer to ExecuteStage pipe register for icode and valA/valC acces.
  * 		E_icode passed in for comparison.
  */
-uint64_t getAluA(E * ereg, uint64_t E_icode) {
+uint64_t ExecuteStage::getAluA(E * ereg, uint64_t E_icode) {
     if(E_icode == IRRMOVQ || E_icode == IOPQ) return ereg -> getvalA() -> getOutput();
     if(E_icode == IIRMOVQ || E_icode == IRMMOVQ || E_icode == IMRMOVQ) return ereg -> getvalC() -> getOutput();
     if(E_icode == ICALL || E_icode == IPUSHQ) return -8;
@@ -160,7 +148,7 @@ uint64_t getAluA(E * ereg, uint64_t E_icode) {
  * @param: ereg - pointer to ExecuteStage pipe register for icode and valA/valC acces.
  * 		E_icode passed in for comparison.
  */
-uint64_t getAluB(E * ereg, uint64_t E_icode) {
+uint64_t ExecuteStage::getAluB(E * ereg, uint64_t E_icode) {
     if(E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL || E_icode == IPUSHQ || E_icode == IRET || E_icode == IPOPQ) {
 	return ereg -> getvalB() -> getOutput();
     }
@@ -173,7 +161,7 @@ uint64_t getAluB(E * ereg, uint64_t E_icode) {
  *
  * @param: ereg - pointer to ExecuteStage pipe register for icode.
  */
-uint64_t getAluFun(E * ereg, uint64_t E_icode) {
+uint64_t ExecuteStage::getAluFun(E * ereg, uint64_t E_icode) {
     if (E_icode == IOPQ) return ereg -> getifun() -> getOutput();
     return ADDQ;
 }
@@ -185,7 +173,7 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode) {
  *
  * @param: E_icode for comparison, W for access to getstat().
  */
-bool setcc(uint64_t E_icode, W * W) {
+bool ExecuteStage::setcc(uint64_t E_icode, W * W) {
     uint64_t m_stat = MemoryStage::getm_stat();
     uint64_t W_stat = W -> getstat() -> getOutput();
     return E_icode == IOPQ && (m_stat != SADR && m_stat != SINS && m_stat != SHLT) && (W_stat != SADR && W_stat != SINS && W_stat != SHLT);
@@ -198,7 +186,7 @@ bool setcc(uint64_t E_icode, W * W) {
  *
  * @param: ereg - for getdstE() access, E_icode and e_Cnd for icode and condition code access.
  */
-uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
+uint64_t ExecuteStage::eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
     if(E_icode == IRRMOVQ && !e_Cnd) return RNONE;
     return ereg -> getdstE() -> getOutput();
 
@@ -213,7 +201,7 @@ uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
  * @param e_ifun - function code, val_rA - value in register a, val_rB - value in register B, error - reference the error.
  * @return result - result of operation.  
  */
-uint64_t performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & error) {
+uint64_t ExecuteStage::performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & error) {
     /* I put logic for assigning cnd but I'm not sure if this is correct but I'm just gonna leave it commented out in some bizzare chance I was on the right track -Isaac */
     ConditionCodes * CC = ConditionCodes::getInstance();
     uint64_t result = 0;
@@ -319,7 +307,7 @@ uint64_t ExecuteStage::gete_Cnd(){
  * @param icode - instruction code, ifun - function code.
  * @return 1 or 0.
  */
-bool cond(uint64_t icode, uint64_t ifun) {
+bool ExecuteStage::cond(uint64_t icode, uint64_t ifun) {
 
     ConditionCodes * codes = ConditionCodes::getInstance();
     bool error = false;
@@ -357,7 +345,7 @@ bool cond(uint64_t icode, uint64_t ifun) {
  * @param m_stat W_stat
  * @return true or false
  */
-bool calculateControlSignals(uint64_t m_stat, uint64_t W_stat) {
+bool ExecuteStage::calculateControlSignals(uint64_t m_stat, uint64_t W_stat) {
     return (m_stat == SADR || m_stat == SINS || m_stat == SHLT) || (W_stat == SADR 
 	    || W_stat == SINS || W_stat == SHLT);       
 }

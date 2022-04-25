@@ -22,7 +22,7 @@ class DecodeStage: public Stage
 	uint64_t dvalB(PipeReg ** pregs, Stage ** stages);
 	bool doClockLow(PipeReg ** pregs, Stage ** stages);
 	void doClockHigh(PipeReg ** pregs);
-	void calculateControlSignals(bool & E_bubble, E * E);
+	void calculateControlSignals(bool & E_bubble, E * E, Stage ** stages);
 	void bubbleE(E * ereg); 
     public:
 	uint64_t getd_srcA();
