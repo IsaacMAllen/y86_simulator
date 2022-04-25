@@ -33,8 +33,8 @@ bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
     D * dreg = (D *) pregs[DREG];
     E * ereg = (E *) pregs[EREG];
-    valA = dvalA(dreg, pregs);
-    valB = dvalB(dreg, pregs, e); 
+    valA = dvalA(pregs, stages);
+    valB = dvalB(pregs, stages); 
     dstE = getDstE(dreg);
     dstM = getDstM(dreg);
     d_srcA = getSrcA(dreg);
@@ -168,6 +168,13 @@ uint64_t DecodeStage::getDstE(D * dreg) {
     return RNONE;
 }
 
+/*
+ * getDstM:
+ * determines what the value of the address of the register that will hold the loaded value in MemoryStage will be
+ *
+ * @param: dreg - the D pipeline register object
+ * @return: the address of dstM
+ */
 uint64_t DecodeStage::getDstM(D * dreg) {
     
     uint64_t d_icode = dreg -> geticode() -> getOutput();
@@ -179,6 +186,14 @@ uint64_t DecodeStage::getDstM(D * dreg) {
     return RNONE;
 }
 
+/*
+ * getValA:
+ * dereferences the appropriate register for valA based on D_icode
+ *
+ * @param: dreg - the D pipeline register object
+ * @param: errror - register file accessing error signaling field
+ * @return: valA
+ */
 uint64_t DecodeStage::getValA(D * dreg, bool & error) {
     
     RegisterFile * reggie = RegisterFile::getInstance();
@@ -189,6 +204,14 @@ uint64_t DecodeStage::getValA(D * dreg, bool & error) {
     return reggie -> readRegister(RSP, error);
 }
 
+/*
+ * getValB:
+ * dereferences the appropriate register for valB based on D_icode
+ *
+ * @param: dreg - the D pipeline register object
+ * @param: errror - register file accessing error signaling field
+ * @return: valB
+ */
 uint64_t DecodeStage::getValB(D * dreg, bool & error) {
 
     RegisterFile * reggie = RegisterFile::getInstance();
@@ -199,7 +222,13 @@ uint64_t DecodeStage::getValB(D * dreg, bool & error) {
     return reggie -> readRegister(RSP, error);
 }
 
-uint64_t DecodeStage::dvalA(D * dreg, PipeReg ** pregs) {
+/*
+ * dval
+ */
+uint64_t DecodeStage::dvalA(PipeReg ** pregs, Stage ** stages) {
+    ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
+    MemoryStage * m = (MemoryStage *) stages[MSTAGE]; 
+    D * dreg = (D *) pregs[DREG];
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
     uint64_t D_icode = dreg -> geticode() -> getOutput();
@@ -207,8 +236,8 @@ uint64_t DecodeStage::dvalA(D * dreg, PipeReg ** pregs) {
     bool error = false;
     if(D_icode == ICALL || D_icode == IJXX) return dreg -> getvalP() -> getOutput();
     if(d_srcA == RNONE) return 0;
-    if(d_srcA == ExecuteStage::gete_dstE()) return ExecuteStage::gete_valE();
-    if(d_srcA == mreg -> getdstM() -> getOutput()) return MemoryStage::getm_valM();
+    if(d_srcA == e -> gete_dstE()) return e -> gete_valE();
+    if(d_srcA == mreg -> getdstM() -> getOutput()) return m -> getm_valM();
     if(d_srcA == mreg -> getdstE() -> getOutput()) return mreg -> getvalE() -> getOutput();
     if(d_srcA == wreg -> getdstM() -> getOutput()) return wreg -> getvalM() -> getOutput();
     if(d_srcA == wreg -> getdstE() -> getOutput()) return wreg -> getvalE() -> getOutput();
@@ -216,14 +245,17 @@ uint64_t DecodeStage::dvalA(D * dreg, PipeReg ** pregs) {
 
 }
 
-uint64_t DecodeStage::dvalB(D * dreg, PipeReg ** pregs, ExecuteStage * e) {
+uint64_t DecodeStage::dvalB(PipeReg ** pregs, Stage ** stages) {
+    ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
+    MemoryStage * m = (MemoryStage *) stages[MSTAGE];
+    D * dreg = (D *) pregs[DREG];
     M * mreg = (M *) pregs[MREG];
     W * wreg = (W *) pregs[WREG];
     uint64_t d_srcB = getSrcB(dreg);
     bool error = false;
     if(d_srcB == RNONE) return 0;
     if(d_srcB == e -> gete_dstE()) return e -> gete_valE();
-    if(d_srcB == mreg -> getdstM() -> getOutput()) return MemoryStage::getm_valM();
+    if(d_srcB == mreg -> getdstM() -> getOutput()) return m -> getm_valM();
     if(d_srcB == mreg -> getdstE() -> getOutput()) return mreg -> getvalE() -> getOutput();
     if(d_srcB == wreg -> getdstM() -> getOutput()) return wreg -> getvalM() -> getOutput();
     if(d_srcB == wreg -> getdstE() -> getOutput()) return wreg -> getvalE() -> getOutput();
