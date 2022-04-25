@@ -12,7 +12,6 @@ class DecodeStage: public Stage
 	uint64_t valB;
 	uint64_t dstM;
 	uint64_t dstE;
-    public:
 	uint64_t getSrcA(D * dreg);
 	uint64_t getSrcB(D * dreg); 
 	uint64_t getDstE(D * dreg); 
@@ -25,6 +24,7 @@ class DecodeStage: public Stage
 	void doClockHigh(PipeReg ** pregs);
 	void calculateControlSignals(bool & E_bubble, E * E);
 	void bubbleE(E * ereg); 
+    public:
 	uint64_t getd_srcA();
 	uint64_t getd_srcB();
 

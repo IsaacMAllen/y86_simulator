@@ -30,7 +30,6 @@
  */
 bool DecodeStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 {
-    ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
     D * dreg = (D *) pregs[DREG];
     E * ereg = (E *) pregs[EREG];
     valA = dvalA(pregs, stages);
@@ -57,16 +56,16 @@ void DecodeStage::doClockHigh(PipeReg ** pregs)
 	bubbleE(ereg);
     } 
     else {
-        ereg -> getstat() -> normal();
-        ereg -> geticode() -> normal();
-        ereg -> getifun() -> normal();
-        ereg -> getvalC() -> normal();
-        ereg -> getvalA() -> normal();
-        ereg -> getvalB() -> normal();
-        ereg -> getdstE() -> normal();
-        ereg -> getdstM() -> normal();
-        ereg -> getsrcA() -> normal();
-        ereg -> getsrcB() -> normal();
+	ereg -> getstat() -> normal();
+	ereg -> geticode() -> normal();
+	ereg -> getifun() -> normal();
+	ereg -> getvalC() -> normal();
+	ereg -> getvalA() -> normal();
+	ereg -> getvalB() -> normal();
+	ereg -> getdstE() -> normal();
+	ereg -> getdstM() -> normal();
+	ereg -> getsrcA() -> normal();
+	ereg -> getsrcB() -> normal();
     }
 }
 
@@ -109,18 +108,18 @@ void DecodeStage::setEInput(E * ereg, uint64_t stat, uint64_t icode, uint64_t if
  * @return: the address of rA
  */
 uint64_t DecodeStage::getSrcA(D * dreg) {
-	
-	uint64_t d_icode = dreg -> geticode() -> getOutput();
-	
-	if (d_icode == IRRMOVQ || d_icode == IRMMOVQ || d_icode == IOPQ 	
+
+    uint64_t d_icode = dreg -> geticode() -> getOutput();
+
+    if (d_icode == IRRMOVQ || d_icode == IRMMOVQ || d_icode == IOPQ 	
 	    || d_icode == IPUSHQ) {
-	    return dreg -> getrA() -> getOutput();
-	}
-	if (d_icode == IPOPQ || d_icode == IRET) {
-	    return RSP;
-	}
-	
-	return RNONE;
+	return dreg -> getrA() -> getOutput();
+    }
+    if (d_icode == IPOPQ || d_icode == IRET) {
+	return RSP;
+    }
+
+    return RNONE;
 }
 
 
@@ -132,7 +131,7 @@ uint64_t DecodeStage::getSrcA(D * dreg) {
  * @return: the address of rB
  */
 uint64_t DecodeStage::getSrcB(D * dreg) {
- 
+
     uint64_t d_icode = dreg -> geticode() -> getOutput();
 
     if (d_icode == IOPQ || d_icode == IRMMOVQ || d_icode == IMRMOVQ) {
@@ -154,11 +153,11 @@ uint64_t DecodeStage::getSrcB(D * dreg) {
  * @return: the address of dstE
  */
 uint64_t DecodeStage::getDstE(D * dreg) {
-    
+
     uint64_t d_icode = dreg -> geticode() -> getOutput();
-    
+
     if (d_icode == IRRMOVQ || d_icode == IIRMOVQ || d_icode == IOPQ) {
-	    return dreg -> getrB() -> getOutput();
+	return dreg -> getrB() -> getOutput();
     }
 
     if (d_icode == IPUSHQ || d_icode == IPOPQ || d_icode == ICALL || d_icode == IRET) {
@@ -176,11 +175,11 @@ uint64_t DecodeStage::getDstE(D * dreg) {
  * @return: the address of dstM
  */
 uint64_t DecodeStage::getDstM(D * dreg) {
-    
+
     uint64_t d_icode = dreg -> geticode() -> getOutput();
-    
+
     if (d_icode == IMRMOVQ || d_icode == IPOPQ) {
-	    return dreg -> getrA() -> getOutput();
+	return dreg -> getrA() -> getOutput();
     }
 
     return RNONE;
@@ -195,7 +194,7 @@ uint64_t DecodeStage::getDstM(D * dreg) {
  * @return: valA
  */
 uint64_t DecodeStage::getValA(D * dreg, bool & error) {
-    
+
     RegisterFile * reggie = RegisterFile::getInstance();
     uint64_t D_icode = dreg -> geticode() -> getOutput();
     if (D_icode != IPOPQ && D_icode != IRET) {
@@ -223,7 +222,13 @@ uint64_t DecodeStage::getValB(D * dreg, bool & error) {
 }
 
 /*
- * dval
+ * dValA:
+ * determines valA with forwarding
+ *
+ * @param: pregs - array of the pipeline register sets (F, D, E, M, W instances)
+ * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
+ *         MemoryStage, WritebackStage instances)
+ * @return: valA
  */
 uint64_t DecodeStage::dvalA(PipeReg ** pregs, Stage ** stages) {
     ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
@@ -245,6 +250,15 @@ uint64_t DecodeStage::dvalA(PipeReg ** pregs, Stage ** stages) {
 
 }
 
+/*
+ * dValB:
+ * determines valB with forwarding
+ *
+ * @param: pregs - array of the pipeline register sets (F, D, E, M, W instances)
+ * @param: stages - array of stages (FetchStage, DecodeStage, ExecuteStage,
+ *         MemoryStage, WritebackStage instances)
+ * @return: valB
+ */
 uint64_t DecodeStage::dvalB(PipeReg ** pregs, Stage ** stages) {
     ExecuteStage * e = (ExecuteStage *) stages[ESTAGE];
     MemoryStage * m = (MemoryStage *) stages[MSTAGE];
@@ -262,20 +276,40 @@ uint64_t DecodeStage::dvalB(PipeReg ** pregs, Stage ** stages) {
     return getValB(dreg,error);
 }
 
+/*
+ * getd_srcA:
+ * method used by other stages to compare srcA's
+ * 
+ * @return d_srcA
+ */
 uint64_t DecodeStage::getd_srcA(){
     return DecodeStage::d_srcA;
 }
 
+/*
+ * getd_srcB:
+ * method used by other stages to compare srcA's
+ * 
+ * @return d_srcB
+ */
 uint64_t DecodeStage::getd_srcB(){
     return DecodeStage::d_srcB;
 }
 
+/*
+ * calculateControlSignals:
+ * determines wheter or not to bubble the following Execute Stage
+ */
 void DecodeStage::calculateControlSignals(bool & E_bubble, E * E){
     uint64_t E_icode = E -> geticode() -> getOutput();
     uint64_t E_dstM = E -> getdstM() -> getOutput();
     E_bubble = (E_icode == IJXX && !ExecuteStage::gete_Cnd()) || ((E_icode == IMRMOVQ || E_icode == IPOPQ) && (E_dstM == DecodeStage::getd_srcA() || E_dstM == DecodeStage::getd_srcB()));
 }
 
+/*
+ * bubbleE:
+ * handles the bubbling of the following ExecuteStage
+ */
 void DecodeStage::bubbleE(E * ereg) {
     ereg -> getstat() -> bubble(SAOK);
     ereg -> geticode() -> bubble(INOP);
