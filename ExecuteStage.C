@@ -44,18 +44,18 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
     //MemoryStage * m = (MemoryStage *) stages[MSTAGE];
     
     bool error = false;
-    uint64_t icode = ereg->geticode()->getOutput();
-    uint64_t ifun = ereg->getifun()->getOutput();
+    uint64_t icode = ereg -> geticode() -> getOutput();
+    uint64_t ifun = ereg -> getifun() -> getOutput();
     e_Cnd = cond(icode, ifun); 
     if (icode != IJXX) {
-	ExecuteStage::valE = ereg->getvalC()->getOutput();
+	ExecuteStage::valE = ereg -> getvalC() -> getOutput();
     }
     dstE = eDstE(ereg,icode,e_Cnd);
     if(icode == IRRMOVQ){
-	ExecuteStage::valE = ereg->getvalA()->getOutput();
+	ExecuteStage::valE = ereg -> getvalA() -> getOutput();
     }
     if(icode == IMRMOVQ || icode == IRMMOVQ) {
-	ExecuteStage::valE = ereg->getvalC()->getOutput() + ereg->getvalB()->getOutput();
+	ExecuteStage::valE = ereg -> getvalC() -> getOutput() + ereg -> getvalB() -> getOutput();
     }
 
     if(icode == IPOPQ) {
@@ -78,7 +78,7 @@ bool ExecuteStage::doClockLow(PipeReg ** pregs, Stage ** stages)
 	ExecuteStage::valE = performOp(ifun, getAluA(ereg, icode), getAluB(ereg, icode), error);	
     }
 
-    M_bubble = calculateControlSignals(MemoryStage::getm_stat(),wreg->getstat()->getOutput());
+    M_bubble = calculateControlSignals(MemoryStage::getm_stat(),wreg -> getstat() -> getOutput());
 
     setMInput(mreg, ereg -> getstat() -> getOutput(), icode, e_Cnd, ExecuteStage::valE, ereg -> getvalA() -> getOutput(), ExecuteStage::dstE, ereg -> getdstM() -> getOutput());
 
@@ -96,22 +96,22 @@ void ExecuteStage::doClockHigh(PipeReg ** pregs)
 	M * mreg = (M *) pregs[MREG];
 	
 	if(!M_bubble) {
-	    mreg->getstat()->normal();
-	    mreg->geticode()->normal();
-	    mreg->getCnd()->normal();
-	    mreg->getvalE()->normal();
-	    mreg->getvalA()->normal();
-	    mreg->getdstE()->normal();
-	    mreg->getdstM()->normal();
+	    mreg -> getstat() -> normal();
+	    mreg -> geticode() -> normal();
+	    mreg -> getCnd() -> normal();
+	    mreg -> getvalE() -> normal();
+	    mreg -> getvalA() -> normal();
+	    mreg -> getdstE() -> normal();
+	    mreg -> getdstM() -> normal();
 	}
 	else {
-	    mreg->getstat()->bubble(SAOK);
-	    mreg->geticode()->bubble(INOP);
-	    mreg->getCnd()->bubble();
-	    mreg->getvalE()->bubble();
-	    mreg->getvalA()->bubble();
-	    mreg->getdstE()->bubble(RNONE);
-	    mreg->getdstM()->bubble(RNONE);
+	    mreg -> getstat() -> bubble(SAOK);
+	    mreg -> geticode() -> bubble(INOP);
+	    mreg -> getCnd() -> bubble();
+	    mreg -> getvalE() -> bubble();
+	    mreg -> getvalA() -> bubble();
+	    mreg -> getdstE() -> bubble(RNONE);
+	    mreg -> getdstM() -> bubble(RNONE);
 	}
 
 
@@ -125,13 +125,13 @@ void ExecuteStage::doClockHigh(PipeReg ** pregs)
  */
 void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t cnd, uint64_t valE, uint64_t valA, uint64_t dstE, uint64_t dstM) {
 
-	mreg->getstat()->setInput(stat);
-	mreg->geticode()->setInput(icode);
-	mreg->getCnd()->setInput(cnd);
-	mreg->getvalE()->setInput(valE);
-	mreg->getvalA()->setInput(valA);
-	mreg->getdstE()->setInput(dstE);
-	mreg->getdstM()->setInput(dstM);
+	mreg -> getstat() -> setInput(stat);
+	mreg -> geticode() -> setInput(icode);
+	mreg -> getCnd() -> setInput(cnd);
+	mreg->getvalE() -> setInput(valE);
+	mreg -> getvalA() -> setInput(valA);
+	mreg -> getdstE() -> setInput(dstE);
+	mreg -> getdstM() -> setInput(dstM);
 	
 
 
@@ -145,8 +145,8 @@ void ExecuteStage::setMInput(M * mreg, uint64_t stat, uint64_t icode, uint64_t c
  * 		E_icode passed in for comparison.
  */
 uint64_t getAluA(E * ereg, uint64_t E_icode) {
-    if(E_icode == IRRMOVQ || E_icode == IOPQ) return ereg->getvalA()->getOutput();
-    if(E_icode == IIRMOVQ || E_icode == IRMMOVQ || E_icode == IMRMOVQ) return ereg->getvalC()->getOutput();
+    if(E_icode == IRRMOVQ || E_icode == IOPQ) return ereg -> getvalA() -> getOutput();
+    if(E_icode == IIRMOVQ || E_icode == IRMMOVQ || E_icode == IMRMOVQ) return ereg -> getvalC() -> getOutput();
     if(E_icode == ICALL || E_icode == IPUSHQ) return -8;
     if(E_icode == IRET || E_icode == IPOPQ) return 8;
     return 0;
@@ -161,7 +161,9 @@ uint64_t getAluA(E * ereg, uint64_t E_icode) {
  * 		E_icode passed in for comparison.
  */
 uint64_t getAluB(E * ereg, uint64_t E_icode) {
-    if(E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL || E_icode == IPUSHQ || E_icode == IRET || E_icode == IPOPQ) return ereg->getvalB()->getOutput();
+    if(E_icode == IRMMOVQ || E_icode == IMRMOVQ || E_icode == IOPQ || E_icode == ICALL || E_icode == IPUSHQ || E_icode == IRET || E_icode == IPOPQ) {
+	return ereg -> getvalB() -> getOutput();
+    }
     return 0;
 }
 
@@ -172,7 +174,7 @@ uint64_t getAluB(E * ereg, uint64_t E_icode) {
  * @param: ereg - pointer to ExecuteStage pipe register for icode.
  */
 uint64_t getAluFun(E * ereg, uint64_t E_icode) {
-    if (E_icode == IOPQ) return ereg->getifun()->getOutput();
+    if (E_icode == IOPQ) return ereg -> getifun() -> getOutput();
     return ADDQ;
 }
 
@@ -185,7 +187,7 @@ uint64_t getAluFun(E * ereg, uint64_t E_icode) {
  */
 bool setcc(uint64_t E_icode, W * W) {
     uint64_t m_stat = MemoryStage::getm_stat();
-    uint64_t W_stat = W->getstat()->getOutput();
+    uint64_t W_stat = W -> getstat() -> getOutput();
     return E_icode == IOPQ && (m_stat != SADR && m_stat != SINS && m_stat != SHLT) && (W_stat != SADR && W_stat != SINS && W_stat != SHLT);
 }
 
@@ -198,7 +200,7 @@ bool setcc(uint64_t E_icode, W * W) {
  */
 uint64_t eDstE(E * ereg, uint64_t E_icode, uint64_t e_Cnd) {
     if(E_icode == IRRMOVQ && !e_Cnd) return RNONE;
-    return ereg->getdstE()->getOutput();
+    return ereg -> getdstE() -> getOutput();
 
 }
 
@@ -221,11 +223,11 @@ uint64_t performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & err
 	    // TODO: Logic for CC setting
 	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 0) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 1)) &&
 		    ((Tools::sign(result) == 1 && Tools::sign(val_rA) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rA) == 1))){
-		CC->setConditionCode(true,OF,error);
+		CC -> setConditionCode(true,OF,error);
 		//cnd = Tools::setBits(cnd, OF, OF);
 	    }
 	    else {
-		CC->setConditionCode(false,OF,error);
+		CC -> setConditionCode(false,OF,error);
 		//cnd = Tools::clearBits(cnd, OF, OF);
 	    }
 	    break;
@@ -234,43 +236,43 @@ uint64_t performOp(uint64_t e_ifun, uint64_t val_rA, uint64_t val_rB, bool & err
 	    // TODO: Logic for CC setting
 	    if(((Tools::sign(val_rA) == 0 && Tools::sign(val_rB) == 1) || (Tools::sign(val_rA) == 1 && Tools::sign(val_rB) == 0)) 
 		    && ((Tools::sign(result) == 1 && Tools::sign(val_rB) == 0) || (Tools::sign(result) == 0 && Tools::sign(val_rB) == 1))){
-		CC->setConditionCode(true,OF,error);
+		CC -> setConditionCode(true,OF,error);
 		//cnd = Tools::setBits(cnd, OF, OF);
 	    }
 	    else {
-		CC->setConditionCode(false,OF,error);
+		CC -> setConditionCode(false,OF,error);
 		//cnd = Tools::clearBits(cnd, OF, OF);
 	    }
 	    break;
 	case XORQ:
 	    result = val_rA ^ val_rB;
 	    // TODO: Logic for CC setting
-	    CC->setConditionCode(false,OF,error);
+	    CC -> setConditionCode(false,OF,error);
 	    //cnd = Tools::clearBits(cnd, OF, OF);
 	    break;
 	case ANDQ:
 	    result = val_rA & val_rB;
 	    // TODO: Logic for CC setting
-	    CC->setConditionCode(false,OF,error);
+	    CC -> setConditionCode(false,OF,error);
 	    //cnd = Tools::clearBits(cnd, OF, OF);
 	    break;
     }
 
     if(result == 0) {
-	CC->setConditionCode(true,ZF,error);
+	CC -> setConditionCode(true,ZF,error);
 	//cnd = Tools::setBits(cnd, ZF, ZF);
     }
     else {
-	CC->setConditionCode(false,ZF,error);	
+	CC -> setConditionCode(false,ZF,error);	
 	//cnd = Tools::clearBits(cnd, ZF, ZF);
     }
 
     if(Tools::sign(result) == 1) {
-	CC->setConditionCode(true,SF,error);
+	CC -> setConditionCode(true,SF,error);
 	//cnd = Tools::setBits(cnd, SF, SF);
     }
     else {
-	CC->setConditionCode(false,SF,error);
+	CC -> setConditionCode(false,SF,error);
 	//cnd = Tools::clearBits(cnd, SF, SF);
     }
     return result;
@@ -327,22 +329,22 @@ bool cond(uint64_t icode, uint64_t ifun) {
 	return true;	
     }
     if((icode == IJXX && ifun == LESSEQ) || (icode == ICMOVXX && ifun == LESSEQ)) {
-	return (codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error)) || codes->getConditionCode(ZF,error);
+	return (codes -> getConditionCode(SF, error) ^ codes -> getConditionCode(OF, error)) || codes -> getConditionCode(ZF,error);
     }
     if((icode == IJXX && ifun == LESS) || (icode == ICMOVXX && ifun == LESS)) {
-	return (codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error));
+	return (codes -> getConditionCode(SF, error) ^ codes -> getConditionCode(OF, error));
     }   
     if((icode == IJXX && ifun == EQUAL) || (icode == ICMOVXX && ifun == EQUAL)) {
-	return codes->getConditionCode(ZF, error);
+	return codes -> getConditionCode(ZF, error);
     }   
     if((icode == IJXX && ifun == NOTEQUAL) || (icode == ICMOVXX && ifun == NOTEQUAL)) {
-	return !codes->getConditionCode(ZF, error);
+	return !codes -> getConditionCode(ZF, error);
     }   
     if((icode == IJXX && ifun == GREATER) || (icode == ICMOVXX && ifun == GREATER)) {
-	return !(codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error)) && !codes->getConditionCode(ZF, error);
+	return !(codes -> getConditionCode(SF, error) ^ codes -> getConditionCode(OF, error)) && !codes -> getConditionCode(ZF, error);
     }   
     if((icode == IJXX && ifun == GREATEREQ) || (icode == ICMOVXX && ifun == GREATEREQ)) {
-	return !(codes->getConditionCode(SF, error) ^ codes->getConditionCode(OF, error));
+	return !(codes -> getConditionCode(SF, error) ^ codes -> getConditionCode(OF, error));
     }   
     return false;    
 }
